@@ -1,5 +1,3 @@
-from module.losses import discriminator_loss
-
 from GCA_base import GCABase
 import time
 import torch

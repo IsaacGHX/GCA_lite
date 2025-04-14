@@ -218,13 +218,13 @@ def train_multi_gan(generators, discriminators, dataloaders,
 
             schedulers[i].step(hists_dict[val_loss_keys[i]][epoch])
 
-        if distill and epoch % 10 == 0:
+        if distill and epoch+1 % 10 == 0:
             # if distill and patience_counter > 1:
             losses = [hists_dict[val_loss_keys[i]][epoch] for i in range(N)]
             rank = np.argsort(losses)
             print("Do distill one epoch!")
             do_distill(rank, generators, dataloaders, optimizers_G, window_sizes, device)
-        if epoch % 10 == 0 and cross_finetune:
+        if epoch+1 % 10 == 0 and cross_finetune:
             G_losses = [hists_dict[val_loss_keys[i]][epoch] for i in range(N)]
             D_losses = [np.mean(loss_dict[d_keys[i]]) for i in range(N)]
             G_rank = np.argsort(G_losses)
@@ -267,9 +267,13 @@ def train_multi_gan(generators, discriminators, dataloaders,
                 validate_G_loss = validate(generators[G_rank[0]], val_xes[G_rank[0]], val_y)
 
                 if validate_G_loss >= cross_best_Gloss:
+                    generators[G_rank[0]].load_state_dict(best_model_state[G_rank[0]])
                     break
                 elif validate_G_loss < cross_best_Gloss:
                     cross_best_Gloss = validate_G_loss
+                    best_mse[G_rank[0]] = cross_best_Gloss
+                    best_model_state[G_rank[0]] = copy.deepcopy(generators[G_rank[0]].state_dict())
+                    best_epoch[G_rank[0]] = epoch + 1
 
                 print(
                     f"== Cross finetune Epoch [{e + 1}/{num_epochs}]: G{G_rank[0] + 1}: Validation MSE {validate_G_loss:.8f}")

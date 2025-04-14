@@ -4,7 +4,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
-
+import logging
 
 def validate(model, val_x, val_y):
     model.eval()  # 将模型设置为评估模式
@@ -191,6 +191,7 @@ def evaluate_best_models(generators, best_model_state, train_xes, train_y, test_
             train_metrics_list.append(train_metrics)
             plot_fitting_curve(train_y_inv, train_pred_inv, output_dir, f'G{i+1}_Train')
             print(f"Train Metrics for G{i+1}: MSE={train_metrics[0]:.4f}, MAE={train_metrics[1]:.4f}, RMSE={train_metrics[2]:.4f}, MAPE={train_metrics[3]:.4f}")
+            logging.info(f"Train Metrics for G{i+1}: MSE={train_metrics[0]:.4f}, MAE={train_metrics[1]:.4f}, RMSE={train_metrics[2]:.4f}, MAPE={train_metrics[3]:.4f}")
 
         for i in range(N):
             test_pred, test_cls = generators[i](test_xes[i])
@@ -201,6 +202,7 @@ def evaluate_best_models(generators, best_model_state, train_xes, train_y, test_
             test_metrics_list.append(test_metrics)
             plot_fitting_curve(test_y_inv, test_pred_inv, output_dir, f'G{i+1}_Test')
             print(f"Test Metrics for G{i+1}: MSE={test_metrics[0]:.4f}, MAE={test_metrics[1]:.4f}, RMSE={test_metrics[2]:.4f}, MAPE={test_metrics[3]:.4f}")
+            logging.info(f"Test Metrics for G{i+1}: MSE={test_metrics[0]:.4f}, MAE={test_metrics[1]:.4f}, RMSE={test_metrics[2]:.4f}, MAPE={test_metrics[3]:.4f}")
 
     # 构造返回结果
     result = {
