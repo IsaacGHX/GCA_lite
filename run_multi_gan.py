@@ -2,7 +2,9 @@ import argparse
 from time_series_gca import GCA_time_series
 import pandas as pd
 import os
-
+import models
+from utils.logger import setup_experiment_logging
+import logging
 
 def run_experiments(args):
     # 创建保存结果的CSV文件
@@ -15,22 +17,17 @@ def run_experiments(args):
                           args.generators, args.discriminators,
                           args.ckpt_dir, args.output_dir,
                           args.window_sizes,
+                          ckpt_path=args.ckpt_path,
                           initial_learning_rate=args.lr,
                           train_split=args.train_split,
-                          do_distill= args.distill,
+                          do_distill=args.distill,
                           device=args.device,
                           seed=args.random_seed)
 
-    # feature_columns = list(range(2,56))
-    feature_columns = []
-    # feature_columns = list(range(35,36))
-    # target_columns = [[i] for i in range(1, 22)]
-    target_columns = [list(range(1, 2))]
-
-    for target in target_columns:
+    for target in args.target_columns:
         # for target,feature in zip(target_columns,feature_columns):
         # 运行实验，获取结果
-        target_feature_columns = feature_columns
+        target_feature_columns = args.target_columns
         # target_feature_columns = feature_columns
         # target_feature_columns=target_feature_columns.extend(target)
         target_feature_columns.extend(target)
@@ -40,11 +37,19 @@ def run_experiments(args):
         gca.process_data(args.data_path, target, target_feature_columns)
         gca.init_dataloader()
         gca.init_model()
-        results = gca.train()
+
+
+        logger = setup_experiment_logging(args.output_dir, vars(args))
+
+        if args.mode == "train":
+            results = gca.train(logger)
+        elif args.mode == "pred":
+            results = gca.pred()
+
 
         # 将结果保存到CSV
         result_row = {
-            "feature_columns": feature_columns,
+            "feature_columns": args.feature_columns,
             "target_columns": target,
             "train_mse": results["train_mse"],
             "train_mae": results["train_mae"],
@@ -62,27 +67,46 @@ def run_experiments(args):
 
 
 if __name__ == "__main__":
+    print("============= Available models ==================")
+    for name in dir(models):
+        obj = getattr(models, name)
+        if isinstance(obj, type):
+            print("\t", name)
+    print("** Any other models please refer to add you model name to models.__init__ and import your costumed ones.")
+    print("===============================================\n")
+
     # 使用argparse解析命令行参数
     parser = argparse.ArgumentParser(description="Run experiments for triple GAN model")
+    parser.add_argument('--notes', type=str, required=False, help="Leave your setting in this note",
+                        default="模拟原文实验消融，确认是否加上了分类头之后的最终MSE会一致？")
     parser.add_argument('--data_path', type=str, required=False, help="Path to the input data file",
-                        default="database/cleaned_data.csv")
+                        default="database/process_工商银行.csv")
     parser.add_argument('--output_dir', type=str, required=False, help="Directory to save the output",
                         default="out_put/multi")
     parser.add_argument('--ckpt_dir', type=str, required=False, help="Directory to save the checkpoints",
                         default="ckpt")
+    parser.add_argument('--feature_columns', type=list, help="Window size for first dimension", default=list(range(2,19)))
+    parser.add_argument('--target_columns', type=list, help="Window size for first dimension", default=[list(range(1, 2))])
+    parser.add_argument('--start_timestamp', type=list, help="start l", default=[list(range(1, 2))])
     parser.add_argument('--window_sizes', type=list, help="Window size for first dimension", default=[5, 10, 15])
-    parser.add_argument('--N_pairs', "-n", type=int, help="Window size for first dimension", default=3)
-    parser.add_argument('--generators', "-gens", type=list, help="Window size for first dimension",
+    parser.add_argument('--N_pairs', "-n", type=int, help="numbers of generators etc.", default=3)
+    parser.add_argument('--generators', "-gens", type=list, help="names of generators",
                         default=["gru", "lstm", "transformer"])
     parser.add_argument('--discriminators', "-discs", type=list, help="Window size for first dimension", default=None)
     parser.add_argument('--distill', type=bool, help="Whether to do distillation", default=True)
+    parser.add_argument('--cross_finetune', type=bool, help="Whether to do distillation", default=True)
     parser.add_argument('--device', type=list, help="Device sets", default=[0])
 
     parser.add_argument('--num_epochs', type=int, help="epoch", default=10000)
-    parser.add_argument('--lr', type=int, help="initial learning rate", default=2e-4)
+    parser.add_argument('--lr', type=int, help="initial learning rate", default=2e-5)
     parser.add_argument('--batch_size', type=int, help="Batch size for training", default=64)
-    parser.add_argument('--train_split', type=float, help="Train-test split ratio", default=0.8)
+    parser.add_argument('--train_split', type=float, help="Train-test split ratio", default=0.7)
     parser.add_argument('--random_seed', type=int, help="Random seed for reproducibility", default=3407)
+
+    parser.add_argument('--mode', type=str, choices=["pred", "train"],
+                        help="If train, it will also pred, while it predicts, it will laod the model checkpoint saved before.",
+                        default="train")
+    parser.add_argument("--ckpt_path", type=str, help="Checkpoint path", default="lastest")
 
     args = parser.parse_args()
 

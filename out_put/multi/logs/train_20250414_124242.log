@@ -1,0 +1,43 @@
+2025-04-14 12:42:42,758  INFO  ARGS = {
+  "notes": "模拟原文实验消融，确认是否加上了分类头之后的最终MSE会一致？",
+  "data_path": "database/process_工商银行.csv",
+  "output_dir": "out_put/multi",
+  "ckpt_dir": "ckpt",
+  "window_sizes": [
+    5,
+    10,
+    15
+  ],
+  "N_pairs": 3,
+  "generators": [
+    "gru",
+    "lstm",
+    "transformer"
+  ],
+  "discriminators": null,
+  "distill": true,
+  "device": [
+    0
+  ],
+  "num_epochs": 10000,
+  "lr": 2e-05,
+  "batch_size": 64,
+  "train_split": 0.7,
+  "random_seed": 3407,
+  "mode": "train",
+  "ckpt_path": "lastest"
+}
+2025-04-14 12:42:44,649  INFO  EPOCH 1 | G1: 0.06862973, G2: 0.12158458, G3: 0.01169072 Validation MSE: 
+2025-04-14 12:42:45,674  INFO  EPOCH 2 | G1: 0.05101171, G2: 0.10113057, G3: 0.00362184 Validation MSE: 
+2025-04-14 12:42:46,664  INFO  EPOCH 3 | G1: 0.03665794, G2: 0.09201594, G3: 0.00154824 Validation MSE: 
+2025-04-14 12:42:47,803  INFO  EPOCH 4 | G1: 0.02552255, G2: 0.08312060, G3: 0.00142622 Validation MSE: 
+2025-04-14 12:42:48,730  INFO  EPOCH 5 | G1: 0.01760794, G2: 0.07430546, G3: 0.00101624 Validation MSE: 
+2025-04-14 12:42:50,013  INFO  EPOCH 6 | G1: 0.01265487, G2: 0.06528824, G3: 0.00100320 Validation MSE: 
+2025-04-14 12:42:51,330  INFO  EPOCH 7 | G1: 0.01030928, G2: 0.05621479, G3: 0.00077152 Validation MSE: 
+2025-04-14 12:42:53,044  INFO  EPOCH 8 | G1: 0.00954273, G2: 0.04736561, G3: 0.00076716 Validation MSE: 
+2025-04-14 12:42:54,883  INFO  EPOCH 9 | G1: 0.00932753, G2: 0.03881745, G3: 0.00058970 Validation MSE: 
+2025-04-14 12:42:56,377  INFO  EPOCH 10 | G1: 0.00911329, G2: 0.03125978, G3: 0.00044132 Validation MSE: 
+2025-04-14 12:42:58,009  INFO  EPOCH 11 | G1: 0.00876948, G2: 0.02604209, G3: 0.00061239 Validation MSE: 
+2025-04-14 12:42:59,021  INFO  EPOCH 12 | G1: 0.00826983, G2: 0.02499707, G3: 0.00048460 Validation MSE: 
+2025-04-14 12:43:00,243  INFO  EPOCH 13 | G1: 0.00769264, G2: 0.02760682, G3: 0.00048484 Validation MSE: 
+2025-04-14 12:43:01,487  INFO  EPOCH 14 | G1: 0.00716505, G2: 0.02993768, G3: 0.00060710 Validation MSE: 

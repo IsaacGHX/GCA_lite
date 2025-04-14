@@ -11,13 +11,14 @@ class GCABase(ABC):
 
     def __init__(self, N_pairs, batch_size, num_epochs,
                  generator_names, discriminators_names,
-                 ckpt_path, output_path,
+                 ckpt_dir, output_dir,
                  initial_learning_rate = 2e-4,
                  train_split = 0.8,
                  precise = torch.float32,
                  do_distill: bool = False,
                  device = None,
-                 seed=None):
+                 seed=None,
+                 ckpt_path="auto",):
         """
         初始化必备的超参数。
 
@@ -35,8 +36,9 @@ class GCABase(ABC):
         self.initial_learning_rate = initial_learning_rate
         self.generator_names = generator_names
         self.discriminators_names = discriminators_names
+        self.ckpt_dir = ckpt_dir
         self.ckpt_path = ckpt_path
-        self.output_path = output_path
+        self.output_dir = output_dir
         self.batch_size = batch_size
         self.num_epochs = num_epochs
         self.train_split = train_split
@@ -49,12 +51,12 @@ class GCABase(ABC):
         self.device = setup_device(device)
         print("Running Device:", self.device)
 
-        if not os.path.exists(self.output_path):
-            os.makedirs(self.output_path)
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
             print("Output directory created! ")
 
-        if not os.path.exists(self.ckpt_path):
-            os.makedirs(self.ckpt_path)
+        if not os.path.exists(self.ckpt_dir):
+            os.makedirs(self.ckpt_dir)
             print("Checkpoint directory created! ")
 
     def set_seed(self, seed):
@@ -91,6 +93,11 @@ class GCABase(ABC):
 
     @abstractmethod
     def train(self):
+        """执行训练过程"""
+        pass
+
+    @abstractmethod
+    def save_models(self):
         """执行训练过程"""
         pass
 

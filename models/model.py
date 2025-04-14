@@ -154,6 +154,7 @@ class Generator_lstm(nn.Module):
         linear_out = self.linear(pooled_out.squeeze(2))
         # linear_out = self.linear(lstm_out)
         return linear_out
+
 # 位置编码器
 class PositionalEncoding(nn.Module):
     def __init__(self, model_dim, max_len=5000):
@@ -265,6 +266,7 @@ class Generator_rnn(nn.Module):
         out_5 = self.linear_2(out_4)
         out = self.linear_3(out_5)
         return out
+
 #CNN判别器模型
 class Discriminator1(nn.Module):
     def __init__(self, window_size1,out_size):
@@ -297,6 +299,7 @@ class Discriminator1(nn.Module):
         out_3 = self.linear3(out_2)
         out = self.sigmoid(out_3)
         return out
+
 class Discriminator2(nn.Module):
     def __init__(self,window_size2,out_size):
         #采用3层卷积层（Conv1d）提取特征，并通过全连接层输出真假分类。
@@ -334,38 +337,56 @@ import torch.nn as nn
 class Discriminator3(nn.Module):
     def __init__(self, input_dim, out_size):
         """
-        input_dim: 每个时间步的特征数，比如你是21
-        out_size: 你想输出几个预测值，比如5
+        Args:
+            input_dim: 每个时间步的原始特征数（例如21）
+            out_size: 输出预测值个数（例如5），通常用于预测真实/伪造打分或者分类
         """
         super().__init__()
-        self.conv1 = nn.Conv1d(input_dim+1, 32, kernel_size=3, stride=1, padding='same')
-        self.conv2 = nn.Conv1d(32, 64, kernel_size=3, stride=1, padding='same')
-        self.conv3 = nn.Conv1d(64, 128, kernel_size=3, stride=1, padding='same')
+        # 输入注意：原来的输入是 input_dim+1，这里保持不变，如实际数据需要可调整
+        in_channels = input_dim + 1
 
-        self.linear1 = nn.Linear(128, 220)
-        self.batch1 = nn.BatchNorm1d(220)
-        self.linear2 = nn.Linear(220, 220)
-        self.batch2 = nn.BatchNorm1d(220)
-        self.linear3 = nn.Linear(220, out_size)
+        # 定义卷积层（1d卷积采用padding=1保证时序长度不变）
+        self.conv1 = nn.Conv1d(in_channels, 32, kernel_size=3, stride=1, padding=1)
+        self.bn1 = nn.BatchNorm1d(32)
+        self.conv2 = nn.Conv1d(32, 64, kernel_size=3, stride=1, padding=1)
+        self.bn2 = nn.BatchNorm1d(64)
+        self.conv3 = nn.Conv1d(64, 128, kernel_size=3, stride=1, padding=1)
+        self.bn3 = nn.BatchNorm1d(128)
 
-        self.leaky = nn.LeakyReLU(0.01)
-        self.relu = nn.ReLU()
+        # 自适应池化，将时间步维度池化为1（类似全局平均池化）
+        self.pool = nn.AdaptiveAvgPool1d(1)
+
+        # 全连接层构成判别输出
+        self.fc1 = nn.Linear(128, 128)
+        self.dropout = nn.Dropout(0.2)
+        self.fc2 = nn.Linear(128, out_size)
+
+        # 激活函数统一采用 LeakyReLU
+        self.activation = nn.LeakyReLU(0.01)
+        # 最后输出层采用 Sigmoid（或者根据任务换成其他激活，比如不做激活直接输出打分）
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        # x: [B, T, F] => [B, F, T]
-        #x = x.permute(0, 2, 1)
+        """
+        输入：
+            x: [B, T, F]，其中 T 为序列长度、F为特征数，此处 F 应为 input_dim+1
+        输出：
+            out: [B, out_size]
+        """
+        # 转换为 [B, F, T]，便于使用 Conv1d（因为 Conv1d 的输入通道一般放在第二维）
+        x = x.permute(0, 2, 1)  # [B, F, T]
 
-        conv1 = self.leaky(self.conv1(x))  # [B, 32, T]
-        conv2 = self.leaky(self.conv2(conv1))  # [B, 64, T]
-        conv3 = self.leaky(self.conv3(conv2))  # [B, 128, T]
+        out = self.activation(self.bn1(self.conv1(x)))  # [B, 32, T]
+        out = self.activation(self.bn2(self.conv2(out)))  # [B, 64, T]
+        out = self.activation(self.bn3(self.conv3(out)))  # [B, 128, T]
 
-        # 聚合时间信息，取平均
-        pooled = torch.mean(conv3, dim=2)  # [B, 128]
+        # 自适应平均池化，将时间维度池化为1
+        out = self.pool(out)  # [B, 128, 1]
+        out = out.squeeze(-1)  # [B, 128]
 
-        out = self.leaky(self.linear1(pooled))  # [B, 220]
-        out = self.relu(self.linear2(out))     # [B, 220]
-        out = self.sigmoid(self.linear3(out))  # [B, out_size]
+        out = self.activation(self.fc1(out))  # [B, 128]
+        out = self.dropout(out)
+        out = self.sigmoid(self.fc2(out))  # [B, out_size]
 
         return out
 
