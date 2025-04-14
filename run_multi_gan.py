@@ -21,20 +21,21 @@ def run_experiments(args):
                           initial_learning_rate=args.lr,
                           train_split=args.train_split,
                           do_distill=args.distill,
+                          cross_finetune=args.cross_finetune,
                           device=args.device,
                           seed=args.random_seed)
 
     for target in args.target_columns:
         # for target,feature in zip(target_columns,feature_columns):
         # 运行实验，获取结果
-        target_feature_columns = args.target_columns
+        target_feature_columns = args.feature_columns
         # target_feature_columns = feature_columns
         # target_feature_columns=target_feature_columns.extend(target)
         target_feature_columns.extend(target)
         # target_feature_columns.append(target)
         print("using features:", target_feature_columns)
 
-        gca.process_data(args.data_path, target, target_feature_columns)
+        gca.process_data(args.data_path,args.start_timestamp, args.end_timestamp, target, target_feature_columns)
         gca.init_dataloader()
         gca.init_model()
 
@@ -85,12 +86,13 @@ if __name__ == "__main__":
                         default="out_put/multi")
     parser.add_argument('--ckpt_dir', type=str, required=False, help="Directory to save the checkpoints",
                         default="ckpt")
-    parser.add_argument('--feature_columns', type=list, help="Window size for first dimension", default=list(range(2,19)))
+    parser.add_argument('--feature_columns', type=list, help="Window size for first dimension", default=list(range(2,24)))
     parser.add_argument('--target_columns', type=list, help="Window size for first dimension", default=[list(range(1, 2))])
-    parser.add_argument('--start_timestamp', type=list, help="start l", default=[list(range(1, 2))])
-    parser.add_argument('--window_sizes', type=list, help="Window size for first dimension", default=[5, 10, 15])
+    parser.add_argument('--start_timestamp', type=int, help="start row", default=1)
+    parser.add_argument('--end_timestamp', type=int, help="end row", default=2400)
+    parser.add_argument('--window_sizes', nargs='+', type=int, help="Window size for first dimension", default=[5, 10, 15])
     parser.add_argument('--N_pairs', "-n", type=int, help="numbers of generators etc.", default=3)
-    parser.add_argument('--generators', "-gens", type=list, help="names of generators",
+    parser.add_argument('--generators', "-gens", nargs='+', type=str, help="names of generators",
                         default=["gru", "lstm", "transformer"])
     parser.add_argument('--discriminators', "-discs", type=list, help="Window size for first dimension", default=None)
     parser.add_argument('--distill', type=bool, help="Whether to do distillation", default=True)

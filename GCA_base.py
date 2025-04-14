@@ -16,6 +16,7 @@ class GCABase(ABC):
                  train_split = 0.8,
                  precise = torch.float32,
                  do_distill: bool = False,
+                 cross_finetune: bool = False,
                  device = None,
                  seed=None,
                  ckpt_path="auto",):
@@ -44,6 +45,7 @@ class GCABase(ABC):
         self.train_split = train_split
         self.seed = seed
         self.do_distill = do_distill
+        self.cross_finetune = cross_finetune
         self.device = device
         self.precise = precise
 

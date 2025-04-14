@@ -70,6 +70,7 @@ class GCA_time_series(GCABase):
                  initial_learning_rate: float = 2e-5,
                  train_split: float = 0.8,
                  do_distill: bool = False,
+                 cross_finetune: bool = False,
                  precise=torch.float32,
                  device=None,
                  seed: int = None,
@@ -95,7 +96,7 @@ class GCA_time_series(GCABase):
                          initial_learning_rate,
                          train_split,
                          precise,
-                         do_distill,
+                         do_distill, cross_finetune,
                          device,
                          seed,
                          ckpt_path)  # 调用父类初始化
@@ -122,7 +123,7 @@ class GCA_time_series(GCABase):
         self.init_hyperparameters()
 
     @log_execution_time
-    def process_data(self, data_path, target_columns, feature_columns):
+    def process_data(self, data_path, start_row, end_row,  target_columns, feature_columns):
         """
         Process the input data by loading, splitting, and normalizing it.
 
@@ -140,12 +141,12 @@ class GCA_time_series(GCABase):
         data = pd.read_csv(data_path)
 
         # Select target columns
-        y = data.iloc[:2400, target_columns].values
+        y = data.iloc[start_row:end_row, target_columns].values
         target_column_names = data.columns[target_columns]
         print("Target columns:", target_column_names)
 
         # Select feature columns
-        x = data.iloc[:2400, feature_columns].values
+        x = data.iloc[start_row:end_row, feature_columns].values
         feature_column_names = data.columns[feature_columns]
         print("Feature columns:", feature_column_names)
 
@@ -302,7 +303,7 @@ class GCA_time_series(GCABase):
                                                     self.window_sizes,
                                                     self.y_scaler, self.train_x_all, self.train_y_all, self.test_x_all,
                                                     self.test_y_all,
-                                                    self.do_distill,
+                                                    self.do_distill,self.cross_finetune,
                                                     self.num_epochs,
                                                     self.output_dir,
                                                     self.device,
