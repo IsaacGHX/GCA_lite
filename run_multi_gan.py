@@ -13,7 +13,7 @@ def run_experiments(args):
         os.makedirs(args.output_dir)
         print("Output directory created")
 
-    gca = GCA_time_series(args.N_pairs, args.batch_size, args.num_epochs,
+    gca = GCA_time_series(args, args.N_pairs, args.batch_size, args.num_epochs,
                           args.generators, args.discriminators,
                           args.ckpt_dir, args.output_dir,
                           args.window_sizes,
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     # 使用argparse解析命令行参数
     parser = argparse.ArgumentParser(description="Run experiments for triple GAN model")
     parser.add_argument('--notes', type=str, required=False, help="Leave your setting in this note",
-                        default="实现了判断也在GAN中，试试看")
+                        default="最终测试所有的数据")
     parser.add_argument('--data_path', type=str, required=False, help="Path to the input data file",
                         default="database/process_工商银行.csv")
     parser.add_argument('--output_dir', type=str, required=False, help="Directory to save the output",
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     parser.add_argument('--feature_columns', type=list, help="Window size for first dimension", default=list(range(2,24)))
     parser.add_argument('--target_columns', type=list, help="Window size for first dimension", default=[list(range(1, 2))])
     parser.add_argument('--start_timestamp', type=int, help="start row", default=1)
-    parser.add_argument('--end_timestamp', type=int, help="end row", default=2400)
+    parser.add_argument('--end_timestamp', type=int, help="end row", default=-1)
     parser.add_argument('--window_sizes', nargs='+', type=int, help="Window size for first dimension", default=[5, 10, 15])
     parser.add_argument('--N_pairs', "-n", type=int, help="numbers of generators etc.", default=3)
     parser.add_argument('--num_classes', "-n_cls", type=int, help="numbers of class in classifier head, e.g. 0 par/1 rise/2 fall", default=3)
@@ -105,7 +105,13 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type=int, help="Batch size for training", default=64)
     parser.add_argument('--train_split', type=float, help="Train-test split ratio", default=0.7)
     parser.add_argument('--random_seed', type=int, help="Random seed for reproducibility", default=3407)
-
+    parser.add_argument(
+        "--amp_dtype",
+        type=str,
+        default="none",  # 可选：'float16', 'bfloat16', 'none'
+        choices=["float16", "bfloat16", "none"],
+        help="自动混合精度类型（AMP）：float16, bfloat16, 或 none（禁用）"
+    )
     parser.add_argument('--mode', type=str, choices=["pred", "train"],
                         help="If train, it will also pred, while it predicts, it will laod the model checkpoint saved before.",
                         default="train")

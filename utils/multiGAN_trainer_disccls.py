@@ -12,13 +12,13 @@ import torch.nn.functional as F
 from torch.nn.utils import clip_grad_norm_
 
 import logging  # NEW
-
-from torch.cuda.amp import autocast, GradScaler
+from utils.util import get_autocast_context
+from torch.cuda.amp import GradScaler
 
 scaler = GradScaler()
-data_type = torch.float32
 
-def train_multi_gan(generators, discriminators, dataloaders,
+
+def train_multi_gan(args, generators, discriminators, dataloaders,
                     window_sizes,
                     y_scaler, train_xes, train_y, val_xes, val_y,
                     distill_epochs, cross_finetune_epochs,
@@ -145,7 +145,7 @@ def train_multi_gan(generators, discriminators, dataloaders,
                 generators[i].eval()
                 discriminators[i].train()
 
-            loss_D, lossD_G = discriminate_fake(X, Y, LABELS,
+            loss_D, lossD_G = discriminate_fake(args, X, Y, LABELS,
                                                 generators, discriminators,
                                                 window_sizes, target_num,
                                                 criterion, weight_matrix,
@@ -187,7 +187,7 @@ def train_multi_gan(generators, discriminators, dataloaders,
             '''训练生成器'''
             weight = weight_matrix[:, :-1].clone().detach()  # [N, N]
 
-            loss_G, loss_mse_G = discriminate_fake(X, Y, LABELS,
+            loss_G, loss_mse_G = discriminate_fake(args, X, Y, LABELS,
                                                    generators, discriminators,
                                                    window_sizes, target_num,
                                                    criterion, weight,
@@ -230,7 +230,7 @@ def train_multi_gan(generators, discriminators, dataloaders,
 
             schedulers[i].step(hists_dict[val_loss_keys[i]][epoch])
 
-        if distill_epochs>0 and epoch+1 % 10 == 0:
+        if distill_epochs > 0 and epoch + 1 % 10 == 0:
             # if distill and patience_counter > 1:
             losses = [hists_dict[val_loss_keys[i]][epoch] for i in range(N)]
             rank = np.argsort(losses)
@@ -239,12 +239,12 @@ def train_multi_gan(generators, discriminators, dataloaders,
             for e in distill_epochs:
                 do_distill(rank, generators, dataloaders, optimizers_G, window_sizes, device)
 
-        if epoch+1 % 10 == 0 and cross_finetune_epochs>0:
+        if epoch + 1 % 10 == 0 and cross_finetune_epochs > 0:
             G_losses = [hists_dict[val_loss_keys[i]][epoch] for i in range(N)]
             D_losses = [np.mean(loss_dict[d_keys[i]]) for i in range(N)]
             G_rank = np.argsort(G_losses)
             D_rank = np.argsort(D_losses)
-            print(f"Start cross finetune!  G{G_rank[0]+1} with D{D_rank[0]+1}")
+            print(f"Start cross finetune!  G{G_rank[0] + 1} with D{D_rank[0] + 1}")
             print()
             # if patience_counter > 1:
             for e in range(cross_finetune_epochs):
@@ -253,7 +253,7 @@ def train_multi_gan(generators, discriminators, dataloaders,
                 generators[G_rank[0]].eval()
                 discriminators[D_rank[0]].train()
 
-                loss_D, lossD_G = discriminate_fake([X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[G_rank[0]]],
+                loss_D, lossD_G = discriminate_fake(args, [X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[G_rank[0]]],
                                                     [generators[G_rank[0]]], [discriminators[D_rank[0]]],
                                                     [window_sizes[D_rank[0]]], target_num,
                                                     criterion, weight_matrix[D_rank[0], G_rank[0]],
@@ -272,7 +272,7 @@ def train_multi_gan(generators, discriminators, dataloaders,
 
                 '''训练生成器'''
                 weight = weight_matrix[:, :-1].clone().detach()  # [N, N]
-                loss_G, loss_mse_G = discriminate_fake([X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[G_rank[0]]],
+                loss_G, loss_mse_G = discriminate_fake(args, [X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[G_rank[0]]],
                                                        [generators[G_rank[0]]], [discriminators[D_rank[0]]],
                                                        [window_sizes[D_rank[0]]], target_num,
                                                        criterion, weight[D_rank[0], G_rank[0]],
@@ -360,7 +360,7 @@ def train_multi_gan(generators, discriminators, dataloaders,
     return results, best_model_state
 
 
-def discriminate_fake(X, Y, LABELS,
+def discriminate_fake(args, X, Y, LABELS,
                       generators, discriminators,
                       window_sizes, target_num,
                       criterion, weight_matrix,
@@ -371,7 +371,7 @@ def discriminate_fake(X, Y, LABELS,
     N = len(generators)
 
     # discriminator output for real data
-    with autocast(dtype=data_type):
+    with get_autocast_context(args.amp_dtype):
         # 自动混合精度上下文
         dis_real_outputs = [model(y, label) for (model, y, label) in zip(discriminators, Y, LABELS)]
         outputs = [generator(x) for (generator, x) in zip(generators, X)]  # cannot be omitted
@@ -393,13 +393,13 @@ def discriminate_fake(X, Y, LABELS,
         fake_cls_temp_G = [fake_logits.detach() for fake_logits in fake_cls_G]
         # 拼接之后可以让生成的假数据，既包含假数据又包含真数据，
         fake_cls_temp_G = [torch.cat([label[:, :window_size, :], fake_cls.reshape(-1, 1, target_num)], axis=1)
-                            for (label, window_size, fake_cls) in zip(Y, window_sizes, fake_cls_temp_G)]
+                           for (label, window_size, fake_cls) in zip(Y, window_sizes, fake_cls_temp_G)]
     elif mode == "train_G":
         # 拼接之后可以让生成的假数据，既包含假数据又包含真数据，
         fake_data_temp_G = [torch.cat([y[:, :window_size, :], fake_data.reshape(-1, 1, target_num)], axis=1)
                             for (y, window_size, fake_data) in zip(Y, window_sizes, fake_data_G)]
         fake_cls_temp_G = [torch.cat([label[:, :window_size, :], fake_cls.reshape(-1, 1, target_num)], axis=1)
-                            for (label, window_size, fake_cls) in zip(LABELS, window_sizes, fake_cls_G)]
+                           for (label, window_size, fake_cls) in zip(LABELS, window_sizes, fake_cls_G)]
 
     # 判别器对伪造数据损失
     # 三个生成器的结果的数据对齐
@@ -421,13 +421,14 @@ def discriminate_fake(X, Y, LABELS,
 
     fake_labels = [torch.zeros_like(real_label).to(device) for real_label in real_labels]
 
-    with autocast(dtype=data_type):
+    with get_autocast_context(args.amp_dtype):
         # 自动混合精度上下文
         dis_fake_outputD = []
         for i in range(N):
             row = []
             for j in range(N):
-                out = discriminators[i](fake_data_GtoD[f"G{j + 1}ToD{i + 1}"], fake_cls_GtoD[f"G{j + 1}ToD{i + 1}"].long())
+                out = discriminators[i](fake_data_GtoD[f"G{j + 1}ToD{i + 1}"],
+                                        fake_cls_GtoD[f"G{j + 1}ToD{i + 1}"].long())
                 row.append(out)
             if mode == "train_D":
                 row.append(lossD_real[i])
@@ -452,7 +453,8 @@ def discriminate_fake(X, Y, LABELS,
         loss_DorG = torch.multiply(weight, loss_matrix).sum(dim=1)  # [N, N] --> [N, ]
 
         if mode == "train_G":
-            loss_mse_G = [F.mse_loss(fake_data.squeeze(), y[:, -1, :].squeeze()) for (fake_data, y) in zip(fake_data_G, Y)]
+            loss_mse_G = [F.mse_loss(fake_data.squeeze(), y[:, -1, :].squeeze()) for (fake_data, y) in
+                          zip(fake_data_G, Y)]
             loss_matrix = loss_mse_G
             loss_DorG = loss_DorG + torch.stack(loss_matrix).to(device)
             # ---------------- 添加分类损失 -----------------
@@ -537,6 +539,7 @@ def do_distill(rank, generators, dataloaders, optimizers, window_sizes, device,
         # student_optimizer.step()  # Assuming same optimizer for all generators, modify as needed
         scaler.step(student_optimizer)
         scaler.update()
+
 
 def refine_best_models_with_real_data_v2(
         G_rank, D_rank, generators, discriminators, g_optimizers, d_optimizers,

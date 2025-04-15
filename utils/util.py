@@ -1,4 +1,5 @@
 import torch
+from torch.cuda.amp import autocast, GradScaler
 
 def setup_device(device):
     if isinstance(device, list) and len(device) == 1:
@@ -18,3 +19,13 @@ def setup_device(device):
             print("Using CPU")
 
     return device
+
+def get_autocast_context(amp_dtype: str):
+    if amp_dtype == "float16":
+        return autocast(dtype=torch.float16)
+    elif amp_dtype == "bfloat16":
+        return autocast(dtype=torch.bfloat16)
+    else:
+        # 返回一个 dummy context manager，不使用 AMP
+        from contextlib import nullcontext
+        return nullcontext()

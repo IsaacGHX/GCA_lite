@@ -62,7 +62,7 @@ def generate_labels(y):
 
 
 class GCA_time_series(GCABase):
-    def __init__(self, N_pairs: int, batch_size: int, num_epochs: int,
+    def __init__(self, args, N_pairs: int, batch_size: int, num_epochs: int,
                  generators_names: List, discriminators_names: Optional[List],
                  ckpt_dir: str, output_dir: str,
                  window_sizes: int,
@@ -100,6 +100,7 @@ class GCA_time_series(GCABase):
                          seed,
                          ckpt_path)  # 调用父类初始化
 
+        self.args = args
         self.window_sizes = window_sizes
         # 初始化空字典
         self.generator_dict = {}
@@ -298,7 +299,7 @@ class GCA_time_series(GCABase):
         self.schedular_min_lr = 1e-7
 
     def train(self, logger):
-        results, best_model_state = train_multi_gan(self.generators, self.discriminators, self.dataloaders,
+        results, best_model_state = train_multi_gan(self.args, self.generators, self.discriminators, self.dataloaders,
                                                     self.window_sizes,
                                                     self.y_scaler, self.train_x_all, self.train_y_all, self.test_x_all,
                                                     self.test_y_all,
