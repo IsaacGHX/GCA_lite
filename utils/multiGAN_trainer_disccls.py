@@ -248,43 +248,61 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
             print()
             # if patience_counter > 1:
             for e in range(cross_finetune_epochs):
-                cross_best_Gloss = np.inf
+                for batch_idx, (x_last, y_last, label_last) in enumerate(dataloaders[-1]):
+                    x_last = x_last.to(device)
+                    y_last = y_last.to(device)
+                    label_last = label_last.to(device)
+                    label_last = label_last.unsqueeze(-1)
+                    # print(x_last.shape, y_last.shape, label_last.shape)
 
-                generators[G_rank[0]].eval()
-                discriminators[D_rank[0]].train()
+                    X = []
+                    Y = []
+                    LABELS = []
 
-                loss_D, lossD_G = discriminate_fake(args, [X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[D_rank[0]]],
-                                                    [generators[G_rank[0]]], [discriminators[D_rank[0]]],
-                                                    [window_sizes[D_rank[0]]], target_num,
-                                                    criterion, weight_matrix[D_rank[0], G_rank[0]],
-                                                    device, mode="train_D")
+                    for gap in gaps:
+                        X.append(x_last[:, gap:, :])
+                        Y.append(y_last[:, gap:, :])
+                        LABELS.append(label_last[:, gap:, :].long())
+                    X.append(x_last.to(device))
+                    Y.append(y_last.to(device))
+                    LABELS.append(label_last.to(device).long())
+                    cross_best_Gloss = np.inf
 
-                optimizers_D[D_rank[0]].zero_grad()
+                    generators[G_rank[0]].eval()
+                    discriminators[D_rank[0]].train()
 
-                # loss_D.sum(dim=0).backward()
-                scaler.scale(loss_D.sum(dim=0)).backward()
-                # optimizers_D[D_rank[0]].step()
-                scaler.step(optimizers_D[D_rank[0]])
-                scaler.update()
+                    loss_D, lossD_G = discriminate_fake(args, [X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[D_rank[0]]],
+                                                        [generators[G_rank[0]]], [discriminators[D_rank[0]]],
+                                                        [window_sizes[D_rank[0]]], target_num,
+                                                        criterion, weight_matrix[D_rank[0], G_rank[0]],
+                                                        device, mode="train_D")
 
-                discriminators[D_rank[0]].eval()
-                generators[G_rank[0]].train()
+                    optimizers_D[D_rank[0]].zero_grad()
 
-                '''训练生成器'''
-                weight = weight_matrix[:, :-1].clone().detach()  # [N, N]
-                loss_G, loss_mse_G = discriminate_fake(args, [X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[D_rank[0]]],
-                                                       [generators[G_rank[0]]], [discriminators[D_rank[0]]],
-                                                       [window_sizes[D_rank[0]]], target_num,
-                                                       criterion, weight[D_rank[0], G_rank[0]],
-                                                       device,
-                                                       mode="train_G")
+                    # loss_D.sum(dim=0).backward()
+                    scaler.scale(loss_D.sum(dim=0)).backward()
+                    # optimizers_D[D_rank[0]].step()
+                    scaler.step(optimizers_D[D_rank[0]])
+                    scaler.update()
 
-                optimizers_G[G_rank[0]].zero_grad()
-                # loss_G.sum(dim=0).backward()
-                scaler.scale(loss_G.sum(dim=0)).backward()
-                # optimizers_G[G_rank[0]].step()
-                scaler.step(optimizers_G[G_rank[0]])
-                scaler.update()
+                    discriminators[D_rank[0]].eval()
+                    generators[G_rank[0]].train()
+
+                    '''训练生成器'''
+                    weight = weight_matrix[:, :-1].clone().detach()  # [N, N]
+                    loss_G, loss_mse_G = discriminate_fake(args, [X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[D_rank[0]]],
+                                                           [generators[G_rank[0]]], [discriminators[D_rank[0]]],
+                                                           [window_sizes[D_rank[0]]], target_num,
+                                                           criterion, weight[D_rank[0], G_rank[0]],
+                                                           device,
+                                                           mode="train_G")
+
+                    optimizers_G[G_rank[0]].zero_grad()
+                    # loss_G.sum(dim=0).backward()
+                    scaler.scale(loss_G.sum(dim=0)).backward()
+                    # optimizers_G[G_rank[0]].step()
+                    scaler.step(optimizers_G[G_rank[0]])
+                    scaler.update()
 
                 validate_G_loss = validate(generators[G_rank[0]], val_xes[G_rank[0]], val_y)
 
