@@ -230,16 +230,16 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
 
             schedulers[i].step(hists_dict[val_loss_keys[i]][epoch])
 
-        if distill_epochs > 0 and epoch + 1 % 10 == 0:
+        if distill_epochs > 0 and epoch % 10 == 0:
             # if distill and patience_counter > 1:
             losses = [hists_dict[val_loss_keys[i]][epoch] for i in range(N)]
             rank = np.argsort(losses)
-            print(f"Do distill {distill_epochs} epoch! Distill from G{rank[0]} to G{rank[-1]}")
-            logging.info(f"Do distill {distill_epochs} epoch! Distill from G{rank[0]} to G{rank[-1]}")
-            for e in distill_epochs:
+            print(f"Do distill {distill_epochs} epoch! Distill from G{rank[0]+1} to G{rank[-1]+1}")
+            logging.info(f"Do distill {distill_epochs} epoch! Distill from G{rank[0]+1} to G{rank[-1]+1}")
+            for e in range(distill_epochs):
                 do_distill(rank, generators, dataloaders, optimizers_G, window_sizes, device)
 
-        if epoch + 1 % 10 == 0 and cross_finetune_epochs > 0:
+        if epoch % 10 == 0 and cross_finetune_epochs > 0:
             G_losses = [hists_dict[val_loss_keys[i]][epoch] for i in range(N)]
             D_losses = [np.mean(loss_dict[d_keys[i]]) for i in range(N)]
             G_rank = np.argsort(G_losses)
@@ -253,7 +253,7 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
                 generators[G_rank[0]].eval()
                 discriminators[D_rank[0]].train()
 
-                loss_D, lossD_G = discriminate_fake(args, [X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[G_rank[0]]],
+                loss_D, lossD_G = discriminate_fake(args, [X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[D_rank[0]]],
                                                     [generators[G_rank[0]]], [discriminators[D_rank[0]]],
                                                     [window_sizes[D_rank[0]]], target_num,
                                                     criterion, weight_matrix[D_rank[0], G_rank[0]],
@@ -272,7 +272,7 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
 
                 '''训练生成器'''
                 weight = weight_matrix[:, :-1].clone().detach()  # [N, N]
-                loss_G, loss_mse_G = discriminate_fake(args, [X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[G_rank[0]]],
+                loss_G, loss_mse_G = discriminate_fake(args, [X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[D_rank[0]]],
                                                        [generators[G_rank[0]]], [discriminators[D_rank[0]]],
                                                        [window_sizes[D_rank[0]]], target_num,
                                                        criterion, weight[D_rank[0], G_rank[0]],
@@ -523,8 +523,10 @@ def do_distill(rank, generators, dataloaders, optimizers, window_sizes, device,
         # 软标签学习损失：KL 散度
         soft_loss = F.kl_div(student_log_soft, teacher_soft, reduction="batchmean") * (alpha * temperature ** 2)
 
+        label_onehot = F.one_hot(label.long(), num_classes=student_cls.size(1)).float()
+
         # 硬目标损失：学生分类输出和真实标签计算交叉熵
-        hard_loss = F.cross_entropy(student_cls, label) * (1 - alpha)
+        hard_loss = nn.BCEWithLogitsLoss()(student_cls, label_onehot) * (1 - alpha)
         hard_loss += F.mse_loss(student_output * temperature, y) * (1 - alpha) * mse_lambda
         distillation_loss = soft_loss + hard_loss
 

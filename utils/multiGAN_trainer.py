@@ -100,7 +100,7 @@ def train_multi_gan(generators, discriminators, dataloaders,
     for epoch in range(num_epochs):
         epo_start = time.time()
 
-        if epoch < 10:
+        if epoch < 20:
             weight_matrix = torch.tensor(init_GDweight).to(device)
         else:
             weight_matrix = torch.tensor(final_GDweight).to(device)
