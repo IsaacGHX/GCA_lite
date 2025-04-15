@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import math
 
 class Generator_gru(nn.Module):
-    def __init__(self, input_size, out_size, hidden_dim = 128):
+    def __init__(self, input_size, out_size, hidden_dim = 64):
         super().__init__()
         self.hidden_dim = hidden_dim
         self.gru = nn.GRU(input_size, hidden_dim, batch_first=True)  # 仅保留一层GRU，隐藏单元数为256
@@ -71,7 +71,7 @@ class Generator_gru(nn.Module):
 
 
 class Generator_lstm(nn.Module):
-    def __init__(self, input_size, out_size, hidden_size=128, num_layers=1, dropout=0.1):
+    def __init__(self, input_size, out_size, hidden_size=64, num_layers=1, dropout=0.1):
         """
         Args:
             input_size (int): 输入特征数
@@ -159,7 +159,7 @@ class PositionalEncoding(nn.Module):
 
 
 class Generator_transformer(nn.Module):
-    def __init__(self, input_dim, feature_size=128, num_layers=2, num_heads=8, dropout=0.1, output_len=1):
+    def __init__(self, input_dim, feature_size=64, num_layers=2, num_heads=8, dropout=0.1, output_len=1):
         """
         input_dim: 数据特征维度
         feature_size: 模型特征维度
@@ -251,21 +251,21 @@ class Generator_rnn(nn.Module):
         return out
 
 class Discriminator3(nn.Module):
-    def __init__(self, input_dim, out_size):
+    def __init__(self, input_dim, out_size, hidden_dim):
         """
         input_dim: 每个时间步的特征数，比如你是21
         out_size: 你想输出几个预测值，比如5
         """
         super().__init__()
-        self.conv1 = nn.Conv1d(input_dim+1, 32, kernel_size=3, stride=1, padding='same')
-        self.conv2 = nn.Conv1d(32, 64, kernel_size=3, stride=1, padding='same')
-        self.conv3 = nn.Conv1d(64, 128, kernel_size=3, stride=1, padding='same')
+        self.conv1 = nn.Conv1d(input_dim+1, hidden_dim//4, kernel_size=3, stride=1, padding='same')
+        self.conv2 = nn.Conv1d(hidden_dim//4, hidden_dim//2, kernel_size=3, stride=1, padding='same')
+        self.conv3 = nn.Conv1d(hidden_dim//2, hidden_dim, kernel_size=3, stride=1, padding='same')
 
-        self.linear1 = nn.Linear(128, 220)
-        self.batch1 = nn.BatchNorm1d(220)
-        self.linear2 = nn.Linear(220, 220)
-        self.batch2 = nn.BatchNorm1d(220)
-        self.linear3 = nn.Linear(220, out_size)
+        self.linear1 = nn.Linear(hidden_dim, hidden_dim)
+        self.batch1 = nn.BatchNorm1d(hidden_dim)
+        self.linear2 = nn.Linear(hidden_dim, hidden_dim)
+        self.batch2 = nn.BatchNorm1d(hidden_dim)
+        self.linear3 = nn.Linear(hidden_dim, out_size)
 
         self.leaky = nn.LeakyReLU(0.01)
         self.relu = nn.ReLU()
@@ -284,6 +284,6 @@ class Discriminator3(nn.Module):
 
         out = self.leaky(self.linear1(pooled))  # [B, 220]
         out = self.relu(self.linear2(out))     # [B, 220]
-        out = self.sigmoid(self.linear3(out))  # [B, out_size]
+        out = self.relu(self.linear3(out))  # [B, out_size]
 
         return out

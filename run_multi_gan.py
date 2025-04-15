@@ -79,17 +79,18 @@ if __name__ == "__main__":
     # 使用argparse解析命令行参数
     parser = argparse.ArgumentParser(description="Run experiments for triple GAN model")
     parser.add_argument('--notes', type=str, required=False, help="Leave your setting in this note",
-                        default="回测工商银行")
+                        default="回测300股指自回归")
     parser.add_argument('--data_path', type=str, required=False, help="Path to the input data file",
-                        default="database/process_工商银行.csv")
+                        default="database/processed_300股指_day.csv")
     parser.add_argument('--output_dir', type=str, required=False, help="Directory to save the output",
                         default="out_put/multi")
     parser.add_argument('--ckpt_dir', type=str, required=False, help="Directory to save the checkpoints",
                         default="ckpt")
     parser.add_argument('--feature_columns', type=list, help="Window size for first dimension", default=list(range(2,20)))
+    # parser.add_argument('--feature_columns', type=list, help="Window size for first dimension", default=[])
     # parser.add_argument('--feature_columns', type=list, help="Window size for first dimension", default=list(range(2,24)))
     parser.add_argument('--target_columns', type=list, help="Window size for first dimension", default=[list(range(1, 2))])
-    parser.add_argument('--start_timestamp', type=int, help="start row", default=1710)
+    parser.add_argument('--start_timestamp', type=int, help="start row", default=31)
     parser.add_argument('--end_timestamp', type=int, help="end row", default=-1)
     # parser.add_argument('--start_timestamp', type=int, help="start row", default=1)
     # parser.add_argument('--end_timestamp', type=int, help="end row", default=2400)
@@ -100,7 +101,7 @@ if __name__ == "__main__":
                         default=["gru", "lstm", "transformer"])
     parser.add_argument('--discriminators', "-discs", type=list, help="Window size for first dimension", default=None)
     parser.add_argument('--distill_epochs', type=int, help="Whether to do distillation", default=1)
-    parser.add_argument('--cross_finetune_epochs', type=bool, help="Whether to do distillation", default=10)
+    parser.add_argument('--cross_finetune_epochs', type=bool, help="Whether to do distillation", default=5)
     parser.add_argument('--device', type=list, help="Device sets", default=[0])
 
     parser.add_argument('--num_epochs', type=int, help="epoch", default=10000)

@@ -230,7 +230,7 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
 
             schedulers[i].step(hists_dict[val_loss_keys[i]][epoch])
 
-        if distill_epochs > 0 and epoch+1 % 20 == 0:
+        if distill_epochs > 0 and epoch+1 % 30 == 0:
             # if distill and patience_counter > 1:
             losses = [hists_dict[val_loss_keys[i]][epoch] for i in range(N)]
             rank = np.argsort(losses)
