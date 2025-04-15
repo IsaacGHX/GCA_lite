@@ -81,12 +81,12 @@ if __name__ == "__main__":
     parser.add_argument('--notes', type=str, required=False, help="Leave your setting in this note",
                         default="最终测试所有的数据")
     parser.add_argument('--data_path', type=str, required=False, help="Path to the input data file",
-                        default="database/process_工商银行.csv")
+                        default="database/processed_黄金_day.csv")
     parser.add_argument('--output_dir', type=str, required=False, help="Directory to save the output",
                         default="out_put/multi")
     parser.add_argument('--ckpt_dir', type=str, required=False, help="Directory to save the checkpoints",
                         default="ckpt")
-    parser.add_argument('--feature_columns', type=list, help="Window size for first dimension", default=list(range(2,24)))
+    parser.add_argument('--feature_columns', type=list, help="Window size for first dimension", default=list(range(2,20)))
     parser.add_argument('--target_columns', type=list, help="Window size for first dimension", default=[list(range(1, 2))])
     parser.add_argument('--start_timestamp', type=int, help="start row", default=1)
     parser.add_argument('--end_timestamp', type=int, help="end row", default=-1)
