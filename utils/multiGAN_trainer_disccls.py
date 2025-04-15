@@ -230,7 +230,7 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
 
             schedulers[i].step(hists_dict[val_loss_keys[i]][epoch])
 
-        if distill_epochs > 0 and epoch % 10 == 0:
+        if distill_epochs > 0 and epoch+1 % 20 == 0:
             # if distill and patience_counter > 1:
             losses = [hists_dict[val_loss_keys[i]][epoch] for i in range(N)]
             rank = np.argsort(losses)
@@ -245,7 +245,7 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
             G_rank = np.argsort(G_losses)
             D_rank = np.argsort(D_losses)
             print(f"Start cross finetune!  G{G_rank[0] + 1} with D{D_rank[0] + 1}")
-            print()
+            logging.info(f"Start cross finetune!  G{G_rank[0] + 1} with D{D_rank[0] + 1}")
             # if patience_counter > 1:
             for e in range(cross_finetune_epochs):
                 for batch_idx, (x_last, y_last, label_last) in enumerate(dataloaders[-1]):
