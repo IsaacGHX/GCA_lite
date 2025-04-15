@@ -13,11 +13,15 @@ from torch.nn.utils import clip_grad_norm_
 
 import logging  # NEW
 
+from torch.cuda.amp import autocast, GradScaler
+
+scaler = GradScaler()
+data_type = torch.float32
 
 def train_multi_gan(generators, discriminators, dataloaders,
                     window_sizes,
                     y_scaler, train_xes, train_y, val_xes, val_y,
-                    distill, cross_finetune,
+                    distill_epochs, cross_finetune_epochs,
                     num_epochs,
                     output_dir,
                     device,
@@ -42,7 +46,8 @@ def train_multi_gan(generators, discriminators, dataloaders,
     d_learning_rate = 2e-5
 
     # 二元交叉熵【损失函数，可能会有问题
-    criterion = nn.BCELoss()
+    # criterion = nn.BCELoss()
+    criterion = nn.BCEWithLogitsLoss()
 
     optimizers_G = [torch.optim.AdamW(model.parameters(), lr=g_learning_rate, betas=(0.9, 0.999))
                     for model in generators]
@@ -131,10 +136,10 @@ def train_multi_gan(generators, discriminators, dataloaders,
             for gap in gaps:
                 X.append(x_last[:, gap:, :])
                 Y.append(y_last[:, gap:, :])
-                LABELS.append(label_last[:, gap:, :])
+                LABELS.append(label_last[:, gap:, :].long())
             X.append(x_last.to(device))
             Y.append(y_last.to(device))
-            LABELS.append(label_last.to(device))
+            LABELS.append(label_last.to(device).long())
 
             for i in range(N):
                 generators[i].eval()
@@ -168,10 +173,14 @@ def train_multi_gan(generators, discriminators, dataloaders,
             #     else:
             #         loss.backward()
 
-            loss_D.sum(dim=0).backward()
+            # loss_D.sum(dim=0).backward()
+            scaler.scale(loss_D.sum(dim=0)).backward()
 
             for i in range(N):
-                optimizers_D[i].step()
+                # optimizers_D[i].step()
+                scaler.step(optimizers_D[i])
+                scaler.update()
+
                 discriminators[i].eval()
                 generators[i].train()
 
@@ -197,10 +206,13 @@ def train_multi_gan(generators, discriminators, dataloaders,
             #     loss.backward(retain_graph=True)
             # else:
             #     loss.backward()
-            loss_G.sum(dim=0).backward()
+            # loss_G.sum(dim=0).backward()
+            scaler.scale(loss_G).sum(dim=0).backward()
 
             for optimizer_G in optimizers_G:
-                optimizer_G.step()
+                # optimizer_G.step()
+                scaler.step(optimizer_G)
+                scaler.update()
 
         for key in loss_dict.keys():
             hists_dict[key][epoch] = np.mean(loss_dict[key])
@@ -218,13 +230,16 @@ def train_multi_gan(generators, discriminators, dataloaders,
 
             schedulers[i].step(hists_dict[val_loss_keys[i]][epoch])
 
-        if distill and epoch+1 % 10 == 0:
+        if distill_epochs>0 and epoch+1 % 10 == 0:
             # if distill and patience_counter > 1:
             losses = [hists_dict[val_loss_keys[i]][epoch] for i in range(N)]
             rank = np.argsort(losses)
-            print("Do distill one epoch!")
-            do_distill(rank, generators, dataloaders, optimizers_G, window_sizes, device)
-        if epoch+1 % 10 == 0 and cross_finetune:
+            print(f"Do distill {distill_epochs} epoch! Distill from G{rank[0]} to G{rank[-1]}")
+            logging.info(f"Do distill {distill_epochs} epoch! Distill from G{rank[0]} to G{rank[-1]}")
+            for e in distill_epochs:
+                do_distill(rank, generators, dataloaders, optimizers_G, window_sizes, device)
+
+        if epoch+1 % 10 == 0 and cross_finetune_epochs>0:
             G_losses = [hists_dict[val_loss_keys[i]][epoch] for i in range(N)]
             D_losses = [np.mean(loss_dict[d_keys[i]]) for i in range(N)]
             G_rank = np.argsort(G_losses)
@@ -232,7 +247,7 @@ def train_multi_gan(generators, discriminators, dataloaders,
             print(f"Start cross finetune!  G{G_rank[0]+1} with D{D_rank[0]+1}")
             print()
             # if patience_counter > 1:
-            for e in range(5):
+            for e in range(cross_finetune_epochs):
                 cross_best_Gloss = np.inf
 
                 generators[G_rank[0]].eval()
@@ -246,8 +261,12 @@ def train_multi_gan(generators, discriminators, dataloaders,
 
                 optimizers_D[D_rank[0]].zero_grad()
 
-                loss_D.sum(dim=0).backward()
-                optimizers_D[D_rank[0]].step()
+                # loss_D.sum(dim=0).backward()
+                scaler.scale(loss_D.sum(dim=0)).backward()
+                # optimizers_D[D_rank[0]].step()
+                scaler.step(optimizers_D[D_rank[0]])
+                scaler.update()
+
                 discriminators[D_rank[0]].eval()
                 generators[G_rank[0]].train()
 
@@ -261,8 +280,11 @@ def train_multi_gan(generators, discriminators, dataloaders,
                                                        mode="train_G")
 
                 optimizers_G[G_rank[0]].zero_grad()
-                loss_G.sum(dim=0).backward()
-                optimizers_G[G_rank[0]].step()
+                # loss_G.sum(dim=0).backward()
+                scaler.scale(loss_G.sum(dim=0)).backward()
+                # optimizers_G[G_rank[0]].step()
+                scaler.step(optimizers_G[G_rank[0]])
+                scaler.update()
 
                 validate_G_loss = validate(generators[G_rank[0]], val_xes[G_rank[0]], val_y)
 
@@ -349,16 +371,17 @@ def discriminate_fake(X, Y, LABELS,
     N = len(generators)
 
     # discriminator output for real data
-    dis_real_outputs = [model(y, label) for (model, y, label) in zip(discriminators, Y, LABELS)]
-    real_labels = [torch.ones_like(dis_real_output).to(device) for dis_real_output in dis_real_outputs]
-    outputs = [generator(x) for (generator, x) in zip(generators, X)]  # cannot be omitted
-    fake_data_G, fake_logits_G = zip(*outputs)
-    # 假设 fake_logits_G 是一个 list，每个元素是 [batch_size, num_classes] 的 tensor
-    fake_cls_G = [torch.argmax(logit, dim=1) for logit in fake_logits_G]  # shape: [batch_size]
+    with autocast(dtype=data_type):
+        # 自动混合精度上下文
+        dis_real_outputs = [model(y, label) for (model, y, label) in zip(discriminators, Y, LABELS)]
+        outputs = [generator(x) for (generator, x) in zip(generators, X)]  # cannot be omitted
+        real_labels = [torch.ones_like(dis_real_output).to(device) for dis_real_output in dis_real_outputs]
+        fake_data_G, fake_logits_G = zip(*outputs)
+        # 假设 fake_logits_G 是一个 list，每个元素是 [batch_size, num_classes] 的 tensor
+        fake_cls_G = [torch.argmax(logit, dim=1) for logit in fake_logits_G]  # shape: [batch_size]
 
-    # 判别器对真实数据损失
-    lossD_real = [criterion(dis_real_output, real_label) for (dis_real_output, real_label) in
-                  zip(dis_real_outputs, real_labels)]
+        lossD_real = [criterion(dis_real_output, real_label) for (dis_real_output, real_label) in
+                      zip(dis_real_outputs, real_labels)]
 
     if mode == "train_D":
         # G1生成的数据
@@ -369,14 +392,14 @@ def discriminate_fake(X, Y, LABELS,
         # G1生成的cls logits
         fake_cls_temp_G = [fake_logits.detach() for fake_logits in fake_cls_G]
         # 拼接之后可以让生成的假数据，既包含假数据又包含真数据，
-        fake_cls_temp_G = [torch.cat([label[:, :window_size, :], fake_data.reshape(-1, 1, target_num)], axis=1)
-                            for (label, window_size, fake_data) in zip(Y, window_sizes, fake_cls_temp_G)]
+        fake_cls_temp_G = [torch.cat([label[:, :window_size, :], fake_cls.reshape(-1, 1, target_num)], axis=1)
+                            for (label, window_size, fake_cls) in zip(Y, window_sizes, fake_cls_temp_G)]
     elif mode == "train_G":
         # 拼接之后可以让生成的假数据，既包含假数据又包含真数据，
         fake_data_temp_G = [torch.cat([y[:, :window_size, :], fake_data.reshape(-1, 1, target_num)], axis=1)
                             for (y, window_size, fake_data) in zip(Y, window_sizes, fake_data_G)]
-        fake_cls_temp_G = [torch.cat([label[:, :window_size, :], fake_data.reshape(-1, 1, target_num)], axis=1)
-                            for (label, window_size, fake_data) in zip(LABELS, window_sizes, fake_cls_G)]
+        fake_cls_temp_G = [torch.cat([label[:, :window_size, :], fake_cls.reshape(-1, 1, target_num)], axis=1)
+                            for (label, window_size, fake_cls) in zip(LABELS, window_sizes, fake_cls_G)]
 
     # 判别器对伪造数据损失
     # 三个生成器的结果的数据对齐
@@ -398,48 +421,50 @@ def discriminate_fake(X, Y, LABELS,
 
     fake_labels = [torch.zeros_like(real_label).to(device) for real_label in real_labels]
 
-    dis_fake_outputD = []
-    for i in range(N):
-        row = []
-        for j in range(N):
-            out = discriminators[i](fake_data_GtoD[f"G{j + 1}ToD{i + 1}"], fake_cls_GtoD[f"G{j + 1}ToD{i + 1}"])
-            row.append(out)
-        if mode == "train_D":
-            row.append(lossD_real[i])
-        dis_fake_outputD.append(row)  # dis_fake_outputD[i][j] = Di(Gj)
-
-    if mode == "train_D":
-        loss_matrix = torch.zeros(N, N + 1, device=device)  # device 取决于你的模型位置
-        weight = weight_matrix.clone().detach()  # [N, N+1]
+    with autocast(dtype=data_type):
+        # 自动混合精度上下文
+        dis_fake_outputD = []
         for i in range(N):
-            for j in range(N + 1):
-                if j < N:
-                    loss_matrix[i, j] = criterion(dis_fake_outputD[i][j], fake_labels[i])
-                elif j == N:
-                    loss_matrix[i, j] = dis_fake_outputD[i][j]
-    elif mode == "train_G":
-        loss_matrix = torch.zeros(N, N, device=device)  # device 取决于你的模型位置
-        weight = weight_matrix.clone().detach()  # [N, N]
-        for i in range(N):
+            row = []
             for j in range(N):
-                loss_matrix[i, j] = criterion(dis_fake_outputD[i][j], real_labels[i])
+                out = discriminators[i](fake_data_GtoD[f"G{j + 1}ToD{i + 1}"], fake_cls_GtoD[f"G{j + 1}ToD{i + 1}"].long())
+                row.append(out)
+            if mode == "train_D":
+                row.append(lossD_real[i])
+            dis_fake_outputD.append(row)  # dis_fake_outputD[i][j] = Di(Gj)
 
-    loss_DorG = torch.multiply(weight, loss_matrix).sum(dim=1)  # [N, N] --> [N, ]
+        if mode == "train_D":
+            loss_matrix = torch.zeros(N, N + 1, device=device)  # device 取决于你的模型位置
+            weight = weight_matrix.clone().detach()  # [N, N+1]
+            for i in range(N):
+                for j in range(N + 1):
+                    if j < N:
+                        loss_matrix[i, j] = criterion(dis_fake_outputD[i][j], fake_labels[i])
+                    elif j == N:
+                        loss_matrix[i, j] = dis_fake_outputD[i][j]
+        elif mode == "train_G":
+            loss_matrix = torch.zeros(N, N, device=device)  # device 取决于你的模型位置
+            weight = weight_matrix.clone().detach()  # [N, N]
+            for i in range(N):
+                for j in range(N):
+                    loss_matrix[i, j] = criterion(dis_fake_outputD[i][j], real_labels[i])
 
-    if mode == "train_G":
-        loss_mse_G = [F.mse_loss(fake_data.squeeze(), y[:, -1, :].squeeze()) for (fake_data, y) in zip(fake_data_G, Y)]
-        loss_matrix = loss_mse_G
-        loss_DorG = loss_DorG + torch.stack(loss_matrix).to(device)
-        # ---------------- 添加分类损失 -----------------
-        # 针对每个生成器的分类分支计算交叉熵损失
-        # LABELS 作为真实标签传入（假设其 shape 与 fake_data_cls[i] 第一维度匹配）
-        cls_losses = [F.cross_entropy(fake_cls, l[:, -1, :].long().squeeze()) for (fake_cls, l) in
-                      zip(fake_logits_G, LABELS)]
-        # 可以取平均或者加总（此处取平均）
-        classification_loss = torch.stack(cls_losses)
-        # 合并生成器的 loss：原始 loss 与分类 loss 相加
-        loss_DorG = loss_DorG + classification_loss
-        # --------------------------------------------------
+        loss_DorG = torch.multiply(weight, loss_matrix).sum(dim=1)  # [N, N] --> [N, ]
+
+        if mode == "train_G":
+            loss_mse_G = [F.mse_loss(fake_data.squeeze(), y[:, -1, :].squeeze()) for (fake_data, y) in zip(fake_data_G, Y)]
+            loss_matrix = loss_mse_G
+            loss_DorG = loss_DorG + torch.stack(loss_matrix).to(device)
+            # ---------------- 添加分类损失 -----------------
+            # 针对每个生成器的分类分支计算交叉熵损失
+            # LABELS 作为真实标签传入（假设其 shape 与 fake_data_cls[i] 第一维度匹配）
+            cls_losses = [F.cross_entropy(fake_cls, l[:, -1, :].squeeze()) for (fake_cls, l) in
+                          zip(fake_logits_G, LABELS)]
+            # 可以取平均或者加总（此处取平均）
+            classification_loss = torch.stack(cls_losses)
+            # 合并生成器的 loss：原始 loss 与分类 loss 相加
+            loss_DorG = loss_DorG + classification_loss
+            # --------------------------------------------------
 
     return loss_DorG, loss_matrix
 
@@ -449,7 +474,7 @@ def do_distill(rank, generators, dataloaders, optimizers, window_sizes, device,
                alpha: float = 0.7,  # 软目标权重
                temperature: float = 2.0,  # 温度系数
                grad_clip: float = 1.0,  # 梯度裁剪上限 (L2‑norm)
-               mse_lambda: float = 0.5,
+               mse_lambda: float = 0.7,
                ):
     teacher_generator = generators[rank[0]]  # Teacher generator is ranked first
     student_generator = generators[rank[-1]]  # Student generator is ranked last
@@ -497,19 +522,21 @@ def do_distill(rank, generators, dataloaders, optimizers, window_sizes, device,
         soft_loss = F.kl_div(student_log_soft, teacher_soft, reduction="batchmean") * (alpha * temperature ** 2)
 
         # 硬目标损失：学生分类输出和真实标签计算交叉熵
-        hard_loss = F.cross_entropy(student_cls, label.long()) * (1 - alpha)
+        hard_loss = F.cross_entropy(student_cls, label) * (1 - alpha)
         hard_loss += F.mse_loss(student_output * temperature, y) * (1 - alpha) * mse_lambda
         distillation_loss = soft_loss + hard_loss
 
         # Backpropagate the loss and update student generator
         student_optimizer.zero_grad()
-        distillation_loss.backward()
+        # distillation_loss.backward()
+        scaler.scale(distillation_loss).backward()
 
         if grad_clip is not None:
             clip_grad_norm_(student_generator.parameters(), grad_clip)
 
-        student_optimizer.step()  # Assuming same optimizer for all generators, modify as needed
-
+        # student_optimizer.step()  # Assuming same optimizer for all generators, modify as needed
+        scaler.step(student_optimizer)
+        scaler.update()
 
 def refine_best_models_with_real_data_v2(
         G_rank, D_rank, generators, discriminators, g_optimizers, d_optimizers,

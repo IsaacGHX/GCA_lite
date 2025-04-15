@@ -15,13 +15,14 @@ GCAbase
 
 ## Overall paradigm
 
-# Initialize models
+### Initialize models: 
 - N generators, e.g. [GRU LSTM, Transformer]  # 3 generator models
 - N discriminators, e.g. [CNND1, CNND2, CNND3]  # 3 discriminator models
 
 - Generators use past window size to predict next 1 (to N maybe will realize in the future version) timestamp.
 - Discriminators use past window size concatting predict label to discriminate and adversarial train
 
+### Main loop: 
 Now following are the present code logic. (Please point out if there exists any faults)
 ``` 
 FOR e in EPOCHS: 

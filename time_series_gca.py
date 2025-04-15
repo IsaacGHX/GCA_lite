@@ -68,8 +68,8 @@ class GCA_time_series(GCABase):
                  window_sizes: int,
                  initial_learning_rate: float = 2e-5,
                  train_split: float = 0.8,
-                 do_distill: bool = False,
-                 cross_finetune: bool = False,
+                 do_distill_epochs: int = 1,
+                 cross_finetune_epochs: int = 5,
                  precise=torch.float32,
                  device=None,
                  seed: int = None,
@@ -95,7 +95,7 @@ class GCA_time_series(GCABase):
                          initial_learning_rate,
                          train_split,
                          precise,
-                         do_distill, cross_finetune,
+                         do_distill_epochs, cross_finetune_epochs,
                          device,
                          seed,
                          ckpt_path)  # 调用父类初始化
@@ -243,7 +243,7 @@ class GCA_time_series(GCABase):
             )
             self.dataloaders.append(dataloader)
 
-    def init_model(self):
+    def init_model(self,num_cls):
         """模型结构初始化"""
         assert len(self.generator_names) == self.N, "Generators and Discriminators mismatch!"
         assert isinstance(self.generator_names, list)
@@ -270,7 +270,7 @@ class GCA_time_series(GCABase):
             # 初始化判别器（默认只用 Discriminator3）
             DisClass = self.discriminator_dict[
                 "default" if self.discriminators_names is None else self.discriminators_names[i]]
-            dis_model = DisClass(self.window_sizes[i], out_size=y.shape[-1]).to(self.device)
+            dis_model = DisClass(self.window_sizes[i], out_size=y.shape[-1], num_cls=num_cls).to(self.device)
             self.discriminators.append(dis_model)
 
     def init_hyperparameters(self, ):
@@ -302,7 +302,7 @@ class GCA_time_series(GCABase):
                                                     self.window_sizes,
                                                     self.y_scaler, self.train_x_all, self.train_y_all, self.test_x_all,
                                                     self.test_y_all,
-                                                    self.do_distill,self.cross_finetune,
+                                                    self.do_distill_epochs,self.cross_finetune_epochs,
                                                     self.num_epochs,
                                                     self.output_dir,
                                                     self.device,

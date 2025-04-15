@@ -20,8 +20,8 @@ def run_experiments(args):
                           ckpt_path=args.ckpt_path,
                           initial_learning_rate=args.lr,
                           train_split=args.train_split,
-                          do_distill=args.distill,
-                          cross_finetune=args.cross_finetune,
+                          do_distill_epochs=args.distill_epochs,
+                          cross_finetune_epochs=args.cross_finetune_epochs,
                           device=args.device,
                           seed=args.random_seed)
 
@@ -37,7 +37,7 @@ def run_experiments(args):
 
         gca.process_data(args.data_path,args.start_timestamp, args.end_timestamp, target, target_feature_columns)
         gca.init_dataloader()
-        gca.init_model()
+        gca.init_model(args.num_classes)
 
 
         logger = setup_experiment_logging(args.output_dir, vars(args))
@@ -92,11 +92,12 @@ if __name__ == "__main__":
     parser.add_argument('--end_timestamp', type=int, help="end row", default=2400)
     parser.add_argument('--window_sizes', nargs='+', type=int, help="Window size for first dimension", default=[5, 10, 15])
     parser.add_argument('--N_pairs', "-n", type=int, help="numbers of generators etc.", default=3)
+    parser.add_argument('--num_classes', "-n_cls", type=int, help="numbers of class in classifier head, e.g. 0 par/1 rise/2 fall", default=3)
     parser.add_argument('--generators', "-gens", nargs='+', type=str, help="names of generators",
                         default=["gru", "lstm", "transformer"])
     parser.add_argument('--discriminators', "-discs", type=list, help="Window size for first dimension", default=None)
-    parser.add_argument('--distill', type=bool, help="Whether to do distillation", default=True)
-    parser.add_argument('--cross_finetune', type=bool, help="Whether to do distillation", default=True)
+    parser.add_argument('--distill_epochs', type=int, help="Whether to do distillation", default=1)
+    parser.add_argument('--cross_finetune_epochs', type=bool, help="Whether to do distillation", default=5)
     parser.add_argument('--device', type=list, help="Device sets", default=[0])
 
     parser.add_argument('--num_epochs', type=int, help="epoch", default=10000)

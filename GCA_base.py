@@ -15,8 +15,8 @@ class GCABase(ABC):
                  initial_learning_rate = 2e-4,
                  train_split = 0.8,
                  precise = torch.float32,
-                 do_distill: bool = False,
-                 cross_finetune: bool = False,
+                 do_distill_epochs: int = 1,
+                 cross_finetune_epochs: int = 5,
                  device = None,
                  seed=None,
                  ckpt_path="auto",):
@@ -44,8 +44,8 @@ class GCABase(ABC):
         self.num_epochs = num_epochs
         self.train_split = train_split
         self.seed = seed
-        self.do_distill = do_distill
-        self.cross_finetune = cross_finetune
+        self.do_distill_epochs = do_distill_epochs
+        self.cross_finetune_epochs = cross_finetune_epochs
         self.device = device
         self.precise = precise
 

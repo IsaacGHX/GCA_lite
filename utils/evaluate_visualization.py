@@ -54,7 +54,7 @@ def plot_generator_losses(data_G, output_dir):
         plt.grid(True)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, "generator_losses.png"))
+    plt.savefig(os.path.join(output_dir, "generator_losses.png"), dpi=500)
     plt.close()
 
 
@@ -75,7 +75,7 @@ def plot_discriminator_losses(data_D, output_dir):
         plt.grid(True)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, "discriminator_losses.png"))
+    plt.savefig(os.path.join(output_dir, "discriminator_losses.png"), dpi=500)
     plt.close()
 
 
@@ -94,7 +94,7 @@ def visualize_overall_loss(histG, histD, output_dir):
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, "overall_losses.png"))
+    plt.savefig(os.path.join(output_dir, "overall_losses.png"), dpi=500)
     plt.close()
 
 
@@ -122,7 +122,7 @@ def plot_mse_loss(hist_MSE_G, hist_val_loss, num_epochs,
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, "mse_losses.png"))
+    plt.savefig(os.path.join(output_dir, "mse_losses.png"), dpi=500)
     plt.close()
 
 def inverse_transform(predictions, scaler):
@@ -152,7 +152,7 @@ def plot_fitting_curve(true_values, predicted_values, output_dir, model_name):
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(f'{output_dir}/{model_name}_fitting_curve.png')
+    plt.savefig(f'{output_dir}/{model_name}_fitting_curve.png', dpi=500)
     plt.close()
 
 

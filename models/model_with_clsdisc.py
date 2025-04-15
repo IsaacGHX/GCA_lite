@@ -251,14 +251,18 @@ class Generator_rnn(nn.Module):
         return out
 
 class Discriminator3(nn.Module):
-    def __init__(self, input_dim, out_size):
+    def __init__(self, input_dim, out_size, num_cls):
         """
         input_dim: 每个时间步的特征数，比如你是21
         out_size: 你想输出几个预测值，比如5
         """
         super().__init__()
-        self.conv1 = nn.Conv1d(input_dim+1, 32, kernel_size=3, stride=1, padding='same')
-        self.conv0 = nn.Conv1d(input_dim+1, 32, kernel_size=3, stride=1, padding='same')
+        # 回归值处理分支
+        self.label_embedding = nn.Embedding(num_cls, 32)
+        self.conv_x = nn.Conv1d(1, 32, kernel_size=3, padding='same')
+        # Label嵌入处理分支
+        self.conv_label = nn.Conv1d(32, 32, kernel_size=3, padding='same')
+
         self.conv2 = nn.Conv1d(64, 64, kernel_size=3, stride=1, padding='same')
         self.conv3 = nn.Conv1d(64, 128, kernel_size=3, stride=1, padding='same')
 
@@ -272,15 +276,24 @@ class Discriminator3(nn.Module):
         self.relu = nn.ReLU()
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, x, logits):
-        # x: [B, T, F] => [B, F, T]
-        #x = x.permute(0, 2, 1)
+    def forward(self, x, label_indices):
+        """
+                x: [B, W, 1] 回归值
+                labels: [B, W] hard label (整数类型)
+                """
+        # 处理回归值
+        x = x.permute(0, 2, 1)  # [B, 1, W]
+        x_feat = self.leaky(self.conv_x(x))  # [B, 32, W]
 
-        conv1 = self.leaky(self.conv1(x))  # [B, 32, T]
-        conv0 = self.leaky(self.conv0(logits))  # [B, 32, T]
-        conv1 = torch.cat([conv0, conv1], dim=1)
-        conv2 = self.leaky(self.conv2(conv1))  # [B, 64, T]
-        conv3 = self.leaky(self.conv3(conv2))  # [B, 128, T]
+        # 处理label嵌入
+        embedded = self.label_embedding(label_indices)  # [B, W, embedding_dim]
+        embedded = embedded.squeeze().permute(0, 2, 1)  # [B, embedding_dim, W]
+        label_feat = self.leaky(self.conv_label(embedded))  # [B, 32, W]
+
+        # 合并特征
+        combined = torch.cat([x_feat, label_feat], dim=1)  # [B, 64, W]
+        conv2 = self.leaky(self.conv2(combined))  # [B, 64, W]
+        conv3 = self.leaky(self.conv3(conv2))  # [B, 128, W]
 
         # 聚合时间信息，取平均
         pooled = torch.mean(conv3, dim=2)  # [B, 128]
