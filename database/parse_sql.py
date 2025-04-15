@@ -112,7 +112,7 @@ try:
         df = pd.read_sql(query, connection)
         column_count = df.shape[1]  # 统计列的数量
         print(f'当前数据框的列数为: {column_count}')
-        calculate_metrics(df, '/root/autodl-tmp/workspace/SEG_branch/GCA/database/'+f'processed_{actual_name}_day.csv')
+        calculate_metrics(df, './'+f'processed_{actual_name}_day.csv')
 
 finally:
     connection.close()

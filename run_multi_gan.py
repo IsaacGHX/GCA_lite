@@ -79,17 +79,17 @@ if __name__ == "__main__":
     # 使用argparse解析命令行参数
     parser = argparse.ArgumentParser(description="Run experiments for triple GAN model")
     parser.add_argument('--notes', type=str, required=False, help="Leave your setting in this note",
-                        default="300有问题，试试看")
+                        default="实现了判断也在GAN中，试试看")
     parser.add_argument('--data_path', type=str, required=False, help="Path to the input data file",
-                        default="database/process_300股指.csv")
+                        default="database/process_工商银行.csv")
     parser.add_argument('--output_dir', type=str, required=False, help="Directory to save the output",
                         default="out_put/multi")
     parser.add_argument('--ckpt_dir', type=str, required=False, help="Directory to save the checkpoints",
                         default="ckpt")
-    parser.add_argument('--feature_columns', type=list, help="Window size for first dimension", default=list(range(2,20)))
+    parser.add_argument('--feature_columns', type=list, help="Window size for first dimension", default=list(range(2,24)))
     parser.add_argument('--target_columns', type=list, help="Window size for first dimension", default=[list(range(1, 2))])
     parser.add_argument('--start_timestamp', type=int, help="start row", default=1)
-    parser.add_argument('--end_timestamp', type=int, help="end row", default=-1)
+    parser.add_argument('--end_timestamp', type=int, help="end row", default=2400)
     parser.add_argument('--window_sizes', nargs='+', type=int, help="Window size for first dimension", default=[5, 10, 15])
     parser.add_argument('--N_pairs', "-n", type=int, help="numbers of generators etc.", default=3)
     parser.add_argument('--generators', "-gens", nargs='+', type=str, help="names of generators",

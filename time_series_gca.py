@@ -7,7 +7,8 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import TensorDataset, DataLoader
 
-from utils.multiGAN_trainer import train_multi_gan
+# from utils.multiGAN_trainer import train_multi_gan
+from utils.multiGAN_trainer_disccls import train_multi_gan
 from typing import List, Optional
 import models
 import os
