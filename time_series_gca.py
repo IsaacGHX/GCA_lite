@@ -151,7 +151,7 @@ class GCA_time_series(GCABase):
         print("Feature columns:", feature_column_names)
 
         # Data splitting using self.train_split
-        train_size = int(data.shape[0] * self.train_split)
+        train_size = int(data.iloc[start_row:end_row].shape[0] * self.train_split)
         train_x, test_x = x[:train_size], x[train_size:]
         train_y, test_y = y[:train_size], y[train_size:]
 
@@ -340,7 +340,7 @@ class GCA_time_series(GCABase):
             save_path = os.path.join(disc_dir, f"{i + 1}_{disc_name}.pt")
             torch.save(disc.state_dict(), save_path)
 
-        print("✅ All models saved with timestamp and identifier.")
+        print("All models saved with timestamp and identifier.")
 
     def get_latest_ckpt_folder(self):
         timestamp = time.strftime("%Y%m%d_%H%M%S")
