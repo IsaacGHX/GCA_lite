@@ -40,7 +40,7 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
 
     assert N == len(discriminators)
     assert N == len(window_sizes)
-    assert N > 1
+    assert N >= 1
 
     g_learning_rate = 2e-5
     d_learning_rate = 2e-5
@@ -239,7 +239,7 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
             for e in range(distill_epochs):
                 do_distill(rank, generators, dataloaders, optimizers_G, window_sizes, device)
 
-        if epoch % 10 == 0 and cross_finetune_epochs > 0:
+        if epoch+1  % 10 == 0 and cross_finetune_epochs > 0:
             G_losses = [hists_dict[val_loss_keys[i]][epoch] for i in range(N)]
             D_losses = [np.mean(loss_dict[d_keys[i]]) for i in range(N)]
             G_rank = np.argsort(G_losses)
@@ -491,10 +491,10 @@ def discriminate_fake(args, X, Y, LABELS,
 
 def do_distill(rank, generators, dataloaders, optimizers, window_sizes, device,
                *,
-               alpha: float = 0.7,  # 软目标权重
+               alpha: float = 0.3,  # 软目标权重
                temperature: float = 2.0,  # 温度系数
                grad_clip: float = 1.0,  # 梯度裁剪上限 (L2‑norm)
-               mse_lambda: float = 0.7,
+               mse_lambda: float = 0.8,
                ):
     teacher_generator = generators[rank[0]]  # Teacher generator is ranked first
     student_generator = generators[rank[-1]]  # Student generator is ranked last

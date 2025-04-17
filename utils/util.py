@@ -25,6 +25,8 @@ def get_autocast_context(amp_dtype: str):
         return autocast(dtype=torch.float16)
     elif amp_dtype == "bfloat16":
         return autocast(dtype=torch.bfloat16)
+    elif amp_dtype == "mixed":
+        return autocast()
     else:
         # 返回一个 dummy context manager，不使用 AMP
         from contextlib import nullcontext

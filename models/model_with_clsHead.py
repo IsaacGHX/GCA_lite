@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import math
 
 class Generator_gru(nn.Module):
-    def __init__(self, input_size, out_size, hidden_dim = 64):
+    def __init__(self, input_size, out_size, hidden_dim = 128):
         super().__init__()
         self.hidden_dim = hidden_dim
         self.gru = nn.GRU(input_size, hidden_dim, batch_first=True)  # 仅保留一层GRU，隐藏单元数为256
@@ -71,7 +71,7 @@ class Generator_gru(nn.Module):
 
 
 class Generator_lstm(nn.Module):
-    def __init__(self, input_size, out_size, hidden_size=64, num_layers=1, dropout=0.1):
+    def __init__(self, input_size, out_size, hidden_size=128, num_layers=1, dropout=0.1):
         """
         Args:
             input_size (int): 输入特征数
@@ -159,7 +159,7 @@ class PositionalEncoding(nn.Module):
 
 
 class Generator_transformer(nn.Module):
-    def __init__(self, input_dim, feature_size=64, num_layers=2, num_heads=8, dropout=0.1, output_len=1):
+    def __init__(self, input_dim, feature_size=128, num_layers=2, num_heads=8, dropout=0.1, output_len=1):
         """
         input_dim: 数据特征维度
         feature_size: 模型特征维度

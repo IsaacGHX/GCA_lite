@@ -1,0 +1,62 @@
+2025-04-17 13:51:08,104  INFO  ARGS = {
+  "notes": "回测纸浆自回归",
+  "data_path": "database/processed_300股指_day.csv",
+  "output_dir": "out_put/multi",
+  "ckpt_dir": "ckpt",
+  "feature_columns": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    1
+  ],
+  "target_columns": [
+    [
+      1
+    ]
+  ],
+  "start_timestamp": 31,
+  "end_timestamp": -1,
+  "window_sizes": [
+    5,
+    10,
+    15
+  ],
+  "N_pairs": 3,
+  "num_classes": 3,
+  "generators": [
+    "gru",
+    "lstm",
+    "transformer"
+  ],
+  "discriminators": null,
+  "distill_epochs": 1,
+  "cross_finetune_epochs": 5,
+  "device": [
+    0
+  ],
+  "num_epochs": 10000,
+  "lr": 2e-05,
+  "batch_size": 64,
+  "train_split": 0.7,
+  "random_seed": 3407,
+  "amp_dtype": "none",
+  "mode": "train",
+  "ckpt_path": "lastest"
+}
+2025-04-17 13:51:10,368  INFO  EPOCH 1 | Validation MSE: G1: 0.21626994, G2: 0.31654134, G3: 0.06965398 
+2025-04-17 13:51:12,255  INFO  EPOCH 2 | Validation MSE: G1: 0.17629561, G2: 0.29473460, G3: 0.00217953 

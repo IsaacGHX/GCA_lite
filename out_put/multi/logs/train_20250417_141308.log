@@ -1,0 +1,111 @@
+2025-04-17 14:13:08,791  INFO  ARGS = {
+  "notes": "单个GAN的Transformer试试看",
+  "data_path": "database/processed_黄金_day.csv",
+  "output_dir": "out_put/multi",
+  "ckpt_dir": "ckpt",
+  "feature_columns": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    1
+  ],
+  "target_columns": [
+    [
+      1
+    ]
+  ],
+  "start_timestamp": 31,
+  "end_timestamp": -1,
+  "window_sizes": [
+    15
+  ],
+  "N_pairs": 1,
+  "num_classes": 3,
+  "generators": [
+    "transformer"
+  ],
+  "discriminators": null,
+  "distill_epochs": 1,
+  "cross_finetune_epochs": 5,
+  "device": [
+    0
+  ],
+  "num_epochs": 10000,
+  "lr": 2e-05,
+  "batch_size": 64,
+  "train_split": 0.7,
+  "random_seed": 3407,
+  "amp_dtype": "none",
+  "mode": "train",
+  "ckpt_path": "lastest"
+}
+2025-04-17 14:13:09,550  INFO  EPOCH 1 | Validation MSE: G1: 0.41295692 
+2025-04-17 14:13:10,063  INFO  EPOCH 2 | Validation MSE: G1: 0.11788707 
+2025-04-17 14:13:10,582  INFO  EPOCH 3 | Validation MSE: G1: 0.04123857 
+2025-04-17 14:13:11,112  INFO  EPOCH 4 | Validation MSE: G1: 0.02780838 
+2025-04-17 14:13:11,602  INFO  EPOCH 5 | Validation MSE: G1: 0.02826679 
+2025-04-17 14:13:12,110  INFO  EPOCH 6 | Validation MSE: G1: 0.03094810 
+2025-04-17 14:13:12,628  INFO  EPOCH 7 | Validation MSE: G1: 0.03020315 
+2025-04-17 14:13:13,124  INFO  EPOCH 8 | Validation MSE: G1: 0.02799537 
+2025-04-17 14:13:13,608  INFO  EPOCH 9 | Validation MSE: G1: 0.02541380 
+2025-04-17 14:13:14,095  INFO  EPOCH 10 | Validation MSE: G1: 0.02421706 
+2025-04-17 14:13:14,607  INFO  EPOCH 11 | Validation MSE: G1: 0.02504650 
+2025-04-17 14:13:15,100  INFO  EPOCH 12 | Validation MSE: G1: 0.02114131 
+2025-04-17 14:13:15,584  INFO  EPOCH 13 | Validation MSE: G1: 0.01900642 
+2025-04-17 14:13:16,073  INFO  EPOCH 14 | Validation MSE: G1: 0.01969808 
+2025-04-17 14:13:16,548  INFO  EPOCH 15 | Validation MSE: G1: 0.01762614 
+2025-04-17 14:13:17,040  INFO  EPOCH 16 | Validation MSE: G1: 0.01986763 
+2025-04-17 14:13:17,571  INFO  EPOCH 17 | Validation MSE: G1: 0.02061806 
+2025-04-17 14:13:18,052  INFO  EPOCH 18 | Validation MSE: G1: 0.02068032 
+2025-04-17 14:13:18,547  INFO  EPOCH 19 | Validation MSE: G1: 0.02099390 
+2025-04-17 14:13:19,054  INFO  EPOCH 20 | Validation MSE: G1: 0.01847667 
+2025-04-17 14:13:19,548  INFO  EPOCH 21 | Validation MSE: G1: 0.01806583 
+2025-04-17 14:13:20,034  INFO  EPOCH 22 | Validation MSE: G1: 0.01728853 
+2025-04-17 14:13:20,516  INFO  EPOCH 23 | Validation MSE: G1: 0.01758347 
+2025-04-17 14:13:21,040  INFO  EPOCH 24 | Validation MSE: G1: 0.01602605 
+2025-04-17 14:13:21,539  INFO  EPOCH 25 | Validation MSE: G1: 0.01739704 
+2025-04-17 14:13:22,059  INFO  EPOCH 26 | Validation MSE: G1: 0.01560361 
+2025-04-17 14:13:22,560  INFO  EPOCH 27 | Validation MSE: G1: 0.01764137 
+2025-04-17 14:13:23,061  INFO  EPOCH 28 | Validation MSE: G1: 0.01624356 
+2025-04-17 14:13:23,587  INFO  EPOCH 29 | Validation MSE: G1: 0.01456828 
+2025-04-17 14:13:24,301  INFO  EPOCH 30 | Validation MSE: G1: 0.01677764 
+2025-04-17 14:13:24,828  INFO  EPOCH 31 | Validation MSE: G1: 0.01452324 
+2025-04-17 14:13:25,366  INFO  EPOCH 32 | Validation MSE: G1: 0.01302734 
+2025-04-17 14:13:25,850  INFO  EPOCH 33 | Validation MSE: G1: 0.01357210 
+2025-04-17 14:13:26,358  INFO  EPOCH 34 | Validation MSE: G1: 0.01300071 
+2025-04-17 14:13:26,835  INFO  EPOCH 35 | Validation MSE: G1: 0.01230162 
+2025-04-17 14:13:27,328  INFO  EPOCH 36 | Validation MSE: G1: 0.01493536 
+2025-04-17 14:13:27,879  INFO  EPOCH 37 | Validation MSE: G1: 0.01106801 
+2025-04-17 14:13:28,479  INFO  EPOCH 38 | Validation MSE: G1: 0.01316981 
+2025-04-17 14:13:29,150  INFO  EPOCH 39 | Validation MSE: G1: 0.01392942 
+2025-04-17 14:13:29,736  INFO  EPOCH 40 | Validation MSE: G1: 0.01272775 
+2025-04-17 14:13:30,287  INFO  EPOCH 41 | Validation MSE: G1: 0.01294164 
+2025-04-17 14:13:30,823  INFO  EPOCH 42 | Validation MSE: G1: 0.01301611 
+2025-04-17 14:13:31,367  INFO  EPOCH 43 | Validation MSE: G1: 0.01341637 
+2025-04-17 14:13:31,964  INFO  EPOCH 44 | Validation MSE: G1: 0.01509771 
+2025-04-17 14:13:32,554  INFO  EPOCH 45 | Validation MSE: G1: 0.01524400 
+2025-04-17 14:13:33,099  INFO  EPOCH 46 | Validation MSE: G1: 0.01393455 
+2025-04-17 14:13:33,642  INFO  EPOCH 47 | Validation MSE: G1: 0.01432290 
+2025-04-17 14:13:34,144  INFO  EPOCH 48 | Validation MSE: G1: 0.01275852 
+2025-04-17 14:13:34,621  INFO  EPOCH 49 | Validation MSE: G1: 0.01224954 
+2025-04-17 14:13:35,117  INFO  EPOCH 50 | Validation MSE: G1: 0.01506690 
+2025-04-17 14:13:35,600  INFO  EPOCH 51 | Validation MSE: G1: 0.01372618 
+2025-04-17 14:13:36,079  INFO  EPOCH 52 | Validation MSE: G1: 0.01738821 
+2025-04-17 14:13:37,243  INFO  G1 best epoch: 37
+2025-04-17 14:13:37,830  INFO  Train Metrics for G1: MSE=48.9441, MAE=6.2114, RMSE=6.9960, MAPE=2.1288
+2025-04-17 14:13:38,383  INFO  Test Metrics for G1: MSE=599.9432, MAE=15.4585, RMSE=24.4937, MAPE=3.0261
