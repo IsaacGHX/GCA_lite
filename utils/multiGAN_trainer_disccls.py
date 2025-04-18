@@ -230,16 +230,16 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
 
             schedulers[i].step(hists_dict[val_loss_keys[i]][epoch])
 
-        if distill_epochs > 0 and epoch+1 % 30 == 0:
+        if distill_epochs > 0 and (epoch + 1) % 30 == 0:
             # if distill and patience_counter > 1:
             losses = [hists_dict[val_loss_keys[i]][epoch] for i in range(N)]
             rank = np.argsort(losses)
-            print(f"Do distill {distill_epochs} epoch! Distill from G{rank[0]+1} to G{rank[-1]+1}")
-            logging.info(f"Do distill {distill_epochs} epoch! Distill from G{rank[0]+1} to G{rank[-1]+1}")
+            print(f"Do distill {distill_epochs} epoch! Distill from G{rank[0] + 1} to G{rank[-1] + 1}")
+            logging.info(f"Do distill {distill_epochs} epoch! Distill from G{rank[0] + 1} to G{rank[-1] + 1}")
             for e in range(distill_epochs):
                 do_distill(rank, generators, dataloaders, optimizers_G, window_sizes, device)
 
-        if epoch+1  % 10 == 0 and cross_finetune_epochs > 0:
+        if (epoch + 1) % 10 == 0 and cross_finetune_epochs > 0:
             G_losses = [hists_dict[val_loss_keys[i]][epoch] for i in range(N)]
             D_losses = [np.mean(loss_dict[d_keys[i]]) for i in range(N)]
             G_rank = np.argsort(G_losses)
