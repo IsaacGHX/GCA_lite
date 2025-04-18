@@ -123,7 +123,7 @@ class GCA_time_series(GCABase):
         self.init_hyperparameters()
 
     @log_execution_time
-    def process_data(self, data_path, start_row, end_row,  target_columns, feature_columns):
+    def process_data(self, data_path, start_row, end_row,  target_columns, feature_columns_list):
         """
         Process the input data by loading, splitting, and normalizing it.
 
@@ -145,22 +145,48 @@ class GCA_time_series(GCABase):
         target_column_names = data.columns[target_columns]
         print("Target columns:", target_column_names)
 
-        # Select feature columns
-        x = data.iloc[start_row:end_row, feature_columns].values
-        feature_column_names = data.columns[feature_columns]
-        print("Feature columns:", feature_column_names)
+        # # Select feature columns
+        # x = data.iloc[start_row:end_row, feature_columns].values
+        # feature_column_names = data.columns[feature_columns]
+        # print("Feature columns:", feature_column_names)
+
+        # Process each set of feature columns
+        x_list = []
+        feature_column_names_list = []
+        self.x_scalers = []  # Store multiple x scalers
+
+        for feature_columns in feature_columns_list:
+            # Select feature columns
+            x = data.iloc[start_row:end_row, feature_columns].values
+            feature_column_names = data.columns[feature_columns]
+            print("Feature columns:", feature_column_names)
+
+            x_list.append(x)
+            feature_column_names_list.append(feature_column_names)
 
         # Data splitting using self.train_split
         train_size = int(data.iloc[start_row:end_row].shape[0] * self.train_split)
-        train_x, test_x = x[:train_size], x[train_size:]
+        # train_x, test_x = x[:train_size], x[train_size:]
+        # Split each x in the list
+        train_x_list = [x[:train_size] for x in x_list]
+        test_x_list = [x[train_size:] for x in x_list]
         train_y, test_y = y[:train_size], y[train_size:]
+
+        # Normalize each x set separately
+        self.train_x_list = []
+        self.test_x_list = []
+        for train_x, test_x in zip(train_x_list, test_x_list):
+            x_scaler = MinMaxScaler(feature_range=(0, 1))
+            self.train_x_list.append(x_scaler.fit_transform(train_x))
+            self.test_x_list.append(x_scaler.transform(test_x))
+            self.x_scalers.append(x_scaler)  # Store all x scalers
 
         # Normalization
         self.x_scaler = MinMaxScaler(feature_range=(0, 1))  # Store scaler as instance variable
         self.y_scaler = MinMaxScaler(feature_range=(0, 1))  # Store scaler as instance variable
 
-        self.train_x = self.x_scaler.fit_transform(train_x)
-        self.test_x = self.x_scaler.transform(test_x)
+        # self.train_x = self.x_scaler.fit_transform(train_x)
+        # self.test_x = self.x_scaler.transform(test_x)
 
         self.train_y = self.y_scaler.fit_transform(train_y)
         self.test_y = self.y_scaler.transform(test_y)
@@ -173,18 +199,29 @@ class GCA_time_series(GCABase):
         print(self.train_labels[:5])
         # ------------------------------------------------------------------
 
-    def create_sequences_combine(self, x, y, label, window_size, start):
+    def create_sequences_combine(self, x_list, y, label, window_size, start):
         x_ = []
         y_ = []
         y_gan = []
         label_gan = []
-        for i in range(start, x.shape[0]):
-            tmp_x = x[i - window_size: i, :]
+        # Create sequences for each x in x_list
+        for x in x_list:
+            x_seq = []
+            for i in range(start, x.shape[0]):
+                tmp_x = x[i - window_size: i, :]
+                x_seq.append(tmp_x)
+            x_.append(np.array(x_seq))
+
+        # Combine x sequences along feature dimension
+        x_ = np.concatenate(x_, axis=-1)
+
+        for i in range(start, y.shape[0]):
+            # tmp_x = x[i - window_size: i, :]
             tmp_y = y[i]
             tmp_y_gan = y[i - window_size: i + 1]
             tmp_label_gan = label[i - window_size: i + 1]
 
-            x_.append(tmp_x)
+            # x_.append(tmp_x)
             y_.append(tmp_y)
             y_gan.append(tmp_y_gan)
             label_gan.append(tmp_label_gan)
@@ -202,12 +239,12 @@ class GCA_time_series(GCABase):
         # Sliding Window Processing
         # 分别生成不同 window_size 的序列数据
         train_data_list = [
-            self.create_sequences_combine(self.train_x, self.train_y, self.train_labels, w, self.window_sizes[-1])
+            self.create_sequences_combine(self.train_x_list, self.train_y, self.train_labels, w, self.window_sizes[-1])
             for w in self.window_sizes
         ]
 
         test_data_list = [
-            self.create_sequences_combine(self.test_x, self.test_y, self.test_labels, w, self.window_sizes[-1])
+            self.create_sequences_combine(self.test_x_list, self.test_y, self.test_labels, w, self.window_sizes[-1])
             for w in self.window_sizes
         ]
 
@@ -240,7 +277,8 @@ class GCA_time_series(GCABase):
                 TensorDataset(x, y_gan, label_gan),
                 batch_size=self.batch_size,
                 shuffle=shuffle_flag,
-                generator=torch.manual_seed(self.seed)
+                generator=torch.manual_seed(self.seed),
+                drop_last=True  # 丢弃最后一个不足 batch size 的数据
             )
             self.dataloaders.append(dataloader)
 

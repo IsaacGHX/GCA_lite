@@ -31,7 +31,10 @@ def run_experiments(args):
         target_feature_columns = args.feature_columns
         # target_feature_columns = feature_columns
         # target_feature_columns=target_feature_columns.extend(target)
-        target_feature_columns.extend(target)
+        target_feature_columns = list(zip(target_feature_columns[::2], target_feature_columns[1::2]))
+        target_feature_columns = [list(range(a, b)) for (a,b) in target_feature_columns]
+        for feature in target_feature_columns:
+            feature.extend(target)
         # target_feature_columns.append(target)
         print("using features:", target_feature_columns)
 
@@ -86,7 +89,7 @@ if __name__ == "__main__":
                         default="out_put/multi")
     parser.add_argument('--ckpt_dir', type=str, required=False, help="Directory to save the checkpoints",
                         default="ckpt")
-    parser.add_argument('--feature_columns', type=list, help="features choosed to be used as input", default=list(range(2,20)))
+    parser.add_argument('--feature_columns', nargs='+', type=int,  help="features choosed to be used as input", default=[2,20,2,20,2,20])
     # parser.add_argument('--feature_columns', type=list, help="features choosed to be used as input", default=[])
     # parser.add_argument('--feature_columns', type=list, help="features choosed to be used as input", default=list(range(2,24)))
     parser.add_argument('--target_columns', type=list, help="target to be predicted", default=[list(range(1, 2))])
@@ -94,11 +97,11 @@ if __name__ == "__main__":
     parser.add_argument('--end_timestamp', type=int, help="end row", default=-1)
     # parser.add_argument('--start_timestamp', type=int, help="start row", default=1)
     # parser.add_argument('--end_timestamp', type=int, help="end row", default=2400)
-    parser.add_argument('--window_sizes', nargs='+', type=int, help="Window size for first dimension", default=[5, 10, 15])
+    parser.add_argument('--window_sizes', nargs='+', type=int, help="Window size for first dimension", default=[15, 15,15])
     parser.add_argument('--N_pairs', "-n", type=int, help="numbers of generators etc.", default=3)
     parser.add_argument('--num_classes', "-n_cls", type=int, help="numbers of class in classifier head, e.g. 0 par/1 rise/2 fall", default=3)
     parser.add_argument('--generators', "-gens", nargs='+', type=str, help="names of generators",
-                        default=["gru", "lstm", "transformer"])
+                        default=["transformer", "transformer", "transformer"])
                         # default=["lstm"])
     parser.add_argument('--discriminators', "-discs", type=list, help="names of discriminators", default=None)
     parser.add_argument('--distill_epochs', type=int, help="Epochs to do distillation", default=1)
