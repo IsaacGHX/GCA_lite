@@ -16,7 +16,7 @@ import time
 import glob
 from utils.evaluate_visualization import evaluate_best_models
 import torch.nn.functional as F
-
+from utils.util import compute_logdiff
 
 def log_execution_time(func):
     """装饰器：记录函数的运行时间，并动态获取函数名"""
@@ -123,7 +123,7 @@ class GCA_time_series(GCABase):
         self.init_hyperparameters()
 
     @log_execution_time
-    def process_data(self, data_path, start_row, end_row,  target_columns, feature_columns_list):
+    def process_data(self, data_path, start_row, end_row,  target_columns, feature_columns_list, log_diff):
         """
         Process the input data by loading, splitting, and normalizing it.
 
@@ -145,6 +145,7 @@ class GCA_time_series(GCABase):
         target_column_names = data.columns[target_columns]
         print("Target columns:", target_column_names)
 
+
         # # Select feature columns
         # x = data.iloc[start_row:end_row, feature_columns].values
         # feature_column_names = data.columns[feature_columns]
@@ -164,6 +165,9 @@ class GCA_time_series(GCABase):
             x_list.append(x)
             feature_column_names_list.append(feature_column_names)
 
+        # —— 1. 计算并打印总体 y 的均值和方差 ——
+        print(f"Overall  Y mean: {y.mean():.4f}, var: {y.var():.4f}")
+
         # Data splitting using self.train_split
         train_size = int(data.iloc[start_row:end_row].shape[0] * self.train_split)
         # train_x, test_x = x[:train_size], x[train_size:]
@@ -171,6 +175,17 @@ class GCA_time_series(GCABase):
         train_x_list = [x[:train_size] for x in x_list]
         test_x_list = [x[train_size:] for x in x_list]
         train_y, test_y = y[:train_size], y[train_size:]
+
+        # —— 3. 对 train/test x 和 y 做对数差分 ——
+        if log_diff:
+            train_x_list = [compute_logdiff(x) for x in train_x_list]
+            test_x_list = [compute_logdiff(x) for x in test_x_list]
+            train_y = compute_logdiff(train_y)
+            test_y = compute_logdiff(test_y)
+
+        # —— 3. 计算并打印 train 和 test 的均值、方差 ——
+        print(f"Train    Y mean: {train_y.mean():.4f}, var: {train_y.var():.4f}")
+        print(f"Test     Y mean: {test_y.mean():.4f}, var: {test_y.var():.4f}")
 
         # Normalize each x set separately
         self.train_x_list = []
@@ -340,7 +355,7 @@ class GCA_time_series(GCABase):
         results, best_model_state = train_multi_gan(self.args, self.generators, self.discriminators, self.dataloaders,
                                                     self.window_sizes,
                                                     self.y_scaler, self.train_x_all, self.train_y_all, self.test_x_all,
-                                                    self.test_y_all,
+                                                    self.test_y_all, self.test_label_gan_all,
                                                     self.do_distill_epochs,self.cross_finetune_epochs,
                                                     self.num_epochs,
                                                     self.output_dir,

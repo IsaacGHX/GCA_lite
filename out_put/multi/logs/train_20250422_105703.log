@@ -1,0 +1,248 @@
+2025-04-22 10:57:03,481  INFO  ARGS = {
+  "notes": "单个GAN的Transformer试试看",
+  "data_path": "database/processed_黄金_day.csv",
+  "output_dir": "out_put/multi",
+  "ckpt_dir": "ckpt",
+  "feature_columns": [
+    2,
+    20,
+    2,
+    20,
+    2,
+    20
+  ],
+  "target_columns": [
+    [
+      1
+    ]
+  ],
+  "start_timestamp": 31,
+  "end_timestamp": -1,
+  "window_sizes": [
+    15,
+    15,
+    15
+  ],
+  "N_pairs": 3,
+  "num_classes": 3,
+  "generators": [
+    "transformer",
+    "transformer",
+    "transformer"
+  ],
+  "discriminators": null,
+  "distill_epochs": 1,
+  "cross_finetune_epochs": 5,
+  "device": [
+    0
+  ],
+  "num_epochs": 10000,
+  "lr": 2e-05,
+  "batch_size": 64,
+  "train_split": 0.7,
+  "random_seed": 3407,
+  "amp_dtype": "none",
+  "mode": "train",
+  "ckpt_path": "lastest"
+}
+2025-04-22 10:57:05,682  INFO  EPOCH 1 | Validation MSE: G1: 0.10393873, G2: 0.04871649, G3: 0.24743913 | Accuracy: G1: 55.90 %, G2: 43.55 %, G3: 56.01 %
+2025-04-22 10:57:07,695  INFO  EPOCH 2 | Validation MSE: G1: 0.03154410, G2: 0.02733707, G3: 0.02933372 | Accuracy: G1: 56.12 %, G2: 44.96 %, G3: 56.01 %
+2025-04-22 10:57:09,809  INFO  EPOCH 3 | Validation MSE: G1: 0.03293998, G2: 0.03328178, G3: 0.03102637 | Accuracy: G1: 50.38 %, G2: 43.55 %, G3: 53.20 %
+2025-04-22 10:57:11,798  INFO  EPOCH 4 | Validation MSE: G1: 0.02711209, G2: 0.02263315, G3: 0.02471121 | Accuracy: G1: 55.80 %, G2: 54.17 %, G3: 56.66 %
+2025-04-22 10:57:13,834  INFO  EPOCH 5 | Validation MSE: G1: 0.03280517, G2: 0.02628144, G3: 0.01810230 | Accuracy: G1: 55.69 %, G2: 55.36 %, G3: 54.82 %
+2025-04-22 10:57:15,856  INFO  EPOCH 6 | Validation MSE: G1: 0.02703934, G2: 0.03172874, G3: 0.02002377 | Accuracy: G1: 56.34 %, G2: 57.85 %, G3: 56.45 %
+2025-04-22 10:57:17,851  INFO  EPOCH 7 | Validation MSE: G1: 0.03119778, G2: 0.02469109, G3: 0.01951209 | Accuracy: G1: 54.17 %, G2: 54.17 %, G3: 53.95 %
+2025-04-22 10:57:19,942  INFO  EPOCH 8 | Validation MSE: G1: 0.02665221, G2: 0.02187947, G3: 0.01354190 | Accuracy: G1: 56.01 %, G2: 56.01 %, G3: 56.01 %
+2025-04-22 10:57:22,159  INFO  EPOCH 9 | Validation MSE: G1: 0.02569253, G2: 0.02496117, G3: 0.01673193 | Accuracy: G1: 53.09 %, G2: 50.70 %, G3: 52.44 %
+2025-04-22 10:57:24,615  INFO  Start cross finetune!  G3 with D1
+2025-04-22 10:57:25,240  INFO  == Cross finetune Epoch [1/10000]: G3: Validation MSE 0.01482628, Validation Acc 56.23%
+2025-04-22 10:57:25,784  INFO  == Cross finetune Epoch [2/10000]: G3: Validation MSE 0.01140021, Validation Acc 58.07%
+2025-04-22 10:57:26,271  INFO  == Cross finetune Epoch [3/10000]: G3: Validation MSE 0.01537377, Validation Acc 57.53%
+2025-04-22 10:57:26,921  INFO  == Cross finetune Epoch [4/10000]: G3: Validation MSE 0.01413961, Validation Acc 57.20%
+2025-04-22 10:57:27,432  INFO  == Cross finetune Epoch [5/10000]: G3: Validation MSE 0.01742210, Validation Acc 57.42%
+2025-04-22 10:57:27,432  INFO  EPOCH 10 | Validation MSE: G1: 0.02841390, G2: 0.02054276, G3: 0.01424876 | Accuracy: G1: 55.90 %, G2: 54.93 %, G3: 53.41 %
+2025-04-22 10:57:29,513  INFO  EPOCH 11 | Validation MSE: G1: 0.02793895, G2: 0.01992516, G3: 0.01312017 | Accuracy: G1: 57.42 %, G2: 57.53 %, G3: 58.29 %
+2025-04-22 10:57:31,451  INFO  EPOCH 12 | Validation MSE: G1: 0.02208368, G2: 0.01940338, G3: 0.01194352 | Accuracy: G1: 54.82 %, G2: 54.82 %, G3: 56.01 %
+2025-04-22 10:57:33,357  INFO  EPOCH 13 | Validation MSE: G1: 0.02323586, G2: 0.01993931, G3: 0.01322315 | Accuracy: G1: 54.50 %, G2: 54.06 %, G3: 56.66 %
+2025-04-22 10:57:35,298  INFO  EPOCH 14 | Validation MSE: G1: 0.01971910, G2: 0.01889049, G3: 0.01131181 | Accuracy: G1: 57.96 %, G2: 52.44 %, G3: 54.93 %
+2025-04-22 10:57:37,236  INFO  EPOCH 15 | Validation MSE: G1: 0.01712449, G2: 0.01921338, G3: 0.01424689 | Accuracy: G1: 48.54 %, G2: 45.18 %, G3: 52.98 %
+2025-04-22 10:57:39,237  INFO  EPOCH 16 | Validation MSE: G1: 0.02139696, G2: 0.01880921, G3: 0.01526088 | Accuracy: G1: 51.14 %, G2: 50.92 %, G3: 55.25 %
+2025-04-22 10:57:41,217  INFO  EPOCH 17 | Validation MSE: G1: 0.02063863, G2: 0.01986695, G3: 0.01353432 | Accuracy: G1: 56.01 %, G2: 55.47 %, G3: 56.77 %
+2025-04-22 10:57:43,073  INFO  EPOCH 18 | Validation MSE: G1: 0.01622193, G2: 0.01705130, G3: 0.01233996 | Accuracy: G1: 56.88 %, G2: 56.12 %, G3: 57.85 %
+2025-04-22 10:57:45,362  INFO  EPOCH 19 | Validation MSE: G1: 0.01800804, G2: 0.01727513, G3: 0.01527193 | Accuracy: G1: 60.56 %, G2: 60.35 %, G3: 60.89 %
+2025-04-22 10:57:47,820  INFO  Start cross finetune!  G3 with D1
+2025-04-22 10:57:48,449  INFO  == Cross finetune Epoch [1/10000]: G3: Validation MSE 0.01367184, Validation Acc 58.29%
+2025-04-22 10:57:49,076  INFO  == Cross finetune Epoch [2/10000]: G3: Validation MSE 0.01441409, Validation Acc 60.89%
+2025-04-22 10:57:49,682  INFO  == Cross finetune Epoch [3/10000]: G3: Validation MSE 0.01286304, Validation Acc 61.21%
+2025-04-22 10:57:50,335  INFO  == Cross finetune Epoch [4/10000]: G3: Validation MSE 0.01472051, Validation Acc 58.94%
+2025-04-22 10:57:50,935  INFO  == Cross finetune Epoch [5/10000]: G3: Validation MSE 0.01368035, Validation Acc 52.22%
+2025-04-22 10:57:50,935  INFO  EPOCH 20 | Validation MSE: G1: 0.01651330, G2: 0.01314561, G3: 0.01309601 | Accuracy: G1: 58.94 %, G2: 58.07 %, G3: 57.20 %
+2025-04-22 10:57:53,385  INFO  EPOCH 21 | Validation MSE: G1: 0.01549757, G2: 0.01743931, G3: 0.01354629 | Accuracy: G1: 59.37 %, G2: 60.13 %, G3: 60.24 %
+2025-04-22 10:57:55,975  INFO  EPOCH 22 | Validation MSE: G1: 0.01831155, G2: 0.01600556, G3: 0.01328826 | Accuracy: G1: 57.96 %, G2: 57.75 %, G3: 58.61 %
+2025-04-22 10:57:58,600  INFO  EPOCH 23 | Validation MSE: G1: 0.01716326, G2: 0.01395132, G3: 0.01604084 | Accuracy: G1: 60.89 %, G2: 59.59 %, G3: 59.59 %
+2025-04-22 10:58:01,300  INFO  EPOCH 24 | Validation MSE: G1: 0.01634343, G2: 0.01746937, G3: 0.01402030 | Accuracy: G1: 61.65 %, G2: 60.67 %, G3: 61.21 %
+2025-04-22 10:58:03,836  INFO  EPOCH 25 | Validation MSE: G1: 0.01682633, G2: 0.01331154, G3: 0.01459711 | Accuracy: G1: 54.82 %, G2: 52.76 %, G3: 55.80 %
+2025-04-22 10:58:06,418  INFO  EPOCH 26 | Validation MSE: G1: 0.01538091, G2: 0.01484615, G3: 0.01495254 | Accuracy: G1: 61.43 %, G2: 61.11 %, G3: 62.08 %
+2025-04-22 10:58:08,960  INFO  EPOCH 27 | Validation MSE: G1: 0.01851561, G2: 0.01608765, G3: 0.01422716 | Accuracy: G1: 59.80 %, G2: 60.56 %, G3: 60.46 %
+2025-04-22 10:58:11,359  INFO  EPOCH 28 | Validation MSE: G1: 0.01479484, G2: 0.01650743, G3: 0.01701468 | Accuracy: G1: 56.23 %, G2: 55.69 %, G3: 60.35 %
+2025-04-22 10:58:13,800  INFO  EPOCH 29 | Validation MSE: G1: 0.01624110, G2: 0.01588265, G3: 0.01697129 | Accuracy: G1: 52.87 %, G2: 50.92 %, G3: 55.47 %
+2025-04-22 10:58:16,486  INFO  Do distill 1 epoch! Distill from G1 to G3
+2025-04-22 10:58:17,024  INFO  Start cross finetune!  G1 with D1
+2025-04-22 10:58:17,668  INFO  == Cross finetune Epoch [1/10000]: G1: Validation MSE 0.01469818, Validation Acc 60.13%
+2025-04-22 10:58:18,474  INFO  == Cross finetune Epoch [2/10000]: G1: Validation MSE 0.01615342, Validation Acc 59.70%
+2025-04-22 10:58:19,034  INFO  == Cross finetune Epoch [3/10000]: G1: Validation MSE 0.01410941, Validation Acc 55.47%
+2025-04-22 10:58:19,555  INFO  == Cross finetune Epoch [4/10000]: G1: Validation MSE 0.01781533, Validation Acc 62.08%
+2025-04-22 10:58:20,165  INFO  == Cross finetune Epoch [5/10000]: G1: Validation MSE 0.01684638, Validation Acc 59.91%
+2025-04-22 10:58:20,165  INFO  EPOCH 30 | Validation MSE: G1: 0.01431283, G2: 0.01497799, G3: 0.01724500 | Accuracy: G1: 62.08 %, G2: 60.89 %, G3: 62.19 %
+2025-04-22 10:58:22,458  INFO  EPOCH 31 | Validation MSE: G1: 0.01546720, G2: 0.01915144, G3: 0.01470851 | Accuracy: G1: 60.02 %, G2: 60.35 %, G3: 61.65 %
+2025-04-22 10:58:24,908  INFO  EPOCH 32 | Validation MSE: G1: 0.01879811, G2: 0.01567363, G3: 0.01528179 | Accuracy: G1: 63.06 %, G2: 61.11 %, G3: 61.54 %
+2025-04-22 10:58:27,326  INFO  EPOCH 33 | Validation MSE: G1: 0.01592249, G2: 0.01879557, G3: 0.01514455 | Accuracy: G1: 61.43 %, G2: 61.43 %, G3: 61.97 %
+2025-04-22 10:58:29,670  INFO  EPOCH 34 | Validation MSE: G1: 0.01500859, G2: 0.01674506, G3: 0.01549611 | Accuracy: G1: 61.54 %, G2: 61.86 %, G3: 62.08 %
+2025-04-22 10:58:32,141  INFO  EPOCH 35 | Validation MSE: G1: 0.01705930, G2: 0.01828757, G3: 0.01498623 | Accuracy: G1: 63.38 %, G2: 61.97 %, G3: 61.86 %
+2025-04-22 10:58:34,601  INFO  EPOCH 36 | Validation MSE: G1: 0.01486600, G2: 0.01933116, G3: 0.01538516 | Accuracy: G1: 62.41 %, G2: 62.08 %, G3: 61.86 %
+2025-04-22 10:58:36,975  INFO  EPOCH 37 | Validation MSE: G1: 0.01752513, G2: 0.01913084, G3: 0.01556427 | Accuracy: G1: 63.49 %, G2: 61.65 %, G3: 61.97 %
+2025-04-22 10:58:39,352  INFO  EPOCH 38 | Validation MSE: G1: 0.02320513, G2: 0.01934533, G3: 0.01573635 | Accuracy: G1: 62.30 %, G2: 62.41 %, G3: 63.06 %
+2025-04-22 10:58:41,730  INFO  EPOCH 39 | Validation MSE: G1: 0.01698081, G2: 0.01881125, G3: 0.01500170 | Accuracy: G1: 59.80 %, G2: 61.86 %, G3: 61.65 %
+2025-04-22 10:58:44,143  INFO  Start cross finetune!  G3 with D1
+2025-04-22 10:58:44,748  INFO  == Cross finetune Epoch [1/10000]: G3: Validation MSE 0.01530259, Validation Acc 61.76%
+2025-04-22 10:58:45,376  INFO  == Cross finetune Epoch [2/10000]: G3: Validation MSE 0.01542595, Validation Acc 62.08%
+2025-04-22 10:58:45,973  INFO  == Cross finetune Epoch [3/10000]: G3: Validation MSE 0.01610828, Validation Acc 62.73%
+2025-04-22 10:58:46,577  INFO  == Cross finetune Epoch [4/10000]: G3: Validation MSE 0.01589600, Validation Acc 61.86%
+2025-04-22 10:58:47,187  INFO  == Cross finetune Epoch [5/10000]: G3: Validation MSE 0.01578723, Validation Acc 62.95%
+2025-04-22 10:58:47,187  INFO  EPOCH 40 | Validation MSE: G1: 0.02195999, G2: 0.01934523, G3: 0.01521885 | Accuracy: G1: 62.95 %, G2: 61.86 %, G3: 61.97 %
+2025-04-22 10:58:49,194  INFO  EPOCH 41 | Validation MSE: G1: 0.01971998, G2: 0.01846965, G3: 0.01538402 | Accuracy: G1: 52.33 %, G2: 62.73 %, G3: 62.95 %
+2025-04-22 10:58:51,499  INFO  EPOCH 42 | Validation MSE: G1: 0.01562027, G2: 0.01890535, G3: 0.01502725 | Accuracy: G1: 63.38 %, G2: 62.51 %, G3: 61.97 %
+2025-04-22 10:58:53,876  INFO  EPOCH 43 | Validation MSE: G1: 0.01784979, G2: 0.01916996, G3: 0.01506458 | Accuracy: G1: 59.48 %, G2: 62.30 %, G3: 62.51 %
+2025-04-22 10:58:56,317  INFO  EPOCH 44 | Validation MSE: G1: 0.02228441, G2: 0.01806205, G3: 0.01556474 | Accuracy: G1: 63.71 %, G2: 62.51 %, G3: 62.41 %
+2025-04-22 10:58:58,697  INFO  EPOCH 45 | Validation MSE: G1: 0.01577979, G2: 0.01936194, G3: 0.01533889 | Accuracy: G1: 61.76 %, G2: 62.95 %, G3: 61.97 %
+2025-04-22 10:59:01,118  INFO  EPOCH 46 | Validation MSE: G1: 0.01626618, G2: 0.01897288, G3: 0.01558443 | Accuracy: G1: 59.80 %, G2: 62.41 %, G3: 62.41 %
+2025-04-22 10:59:03,425  INFO  EPOCH 47 | Validation MSE: G1: 0.01821004, G2: 0.01895026, G3: 0.01415948 | Accuracy: G1: 62.95 %, G2: 62.62 %, G3: 63.06 %
+2025-04-22 10:59:05,764  INFO  EPOCH 48 | Validation MSE: G1: 0.01850500, G2: 0.01870444, G3: 0.01450778 | Accuracy: G1: 63.71 %, G2: 62.51 %, G3: 62.30 %
+2025-04-22 10:59:08,155  INFO  EPOCH 49 | Validation MSE: G1: 0.01787522, G2: 0.01946073, G3: 0.01461072 | Accuracy: G1: 63.71 %, G2: 62.84 %, G3: 62.41 %
+2025-04-22 10:59:10,451  INFO  Start cross finetune!  G3 with D1
+2025-04-22 10:59:11,067  INFO  == Cross finetune Epoch [1/10000]: G3: Validation MSE 0.01465691, Validation Acc 62.41%
+2025-04-22 10:59:11,722  INFO  == Cross finetune Epoch [2/10000]: G3: Validation MSE 0.01463483, Validation Acc 62.41%
+2025-04-22 10:59:12,372  INFO  == Cross finetune Epoch [3/10000]: G3: Validation MSE 0.01475713, Validation Acc 62.30%
+2025-04-22 10:59:13,012  INFO  == Cross finetune Epoch [4/10000]: G3: Validation MSE 0.01468431, Validation Acc 62.41%
+2025-04-22 10:59:13,675  INFO  == Cross finetune Epoch [5/10000]: G3: Validation MSE 0.01479787, Validation Acc 62.41%
+2025-04-22 10:59:13,675  INFO  EPOCH 50 | Validation MSE: G1: 0.01833949, G2: 0.01927263, G3: 0.01467601 | Accuracy: G1: 63.49 %, G2: 62.30 %, G3: 62.41 %
+2025-04-22 10:59:16,010  INFO  EPOCH 51 | Validation MSE: G1: 0.01852669, G2: 0.01970785, G3: 0.01473335 | Accuracy: G1: 63.49 %, G2: 62.84 %, G3: 62.51 %
+2025-04-22 10:59:18,514  INFO  EPOCH 52 | Validation MSE: G1: 0.01872539, G2: 0.01951040, G3: 0.01478701 | Accuracy: G1: 63.06 %, G2: 61.97 %, G3: 62.62 %
+2025-04-22 10:59:20,968  INFO  EPOCH 53 | Validation MSE: G1: 0.01834006, G2: 0.01931895, G3: 0.01483419 | Accuracy: G1: 63.38 %, G2: 62.73 %, G3: 62.62 %
+2025-04-22 10:59:23,342  INFO  EPOCH 54 | Validation MSE: G1: 0.01894984, G2: 0.01870888, G3: 0.01486294 | Accuracy: G1: 63.38 %, G2: 62.62 %, G3: 62.41 %
+2025-04-22 10:59:25,568  INFO  EPOCH 55 | Validation MSE: G1: 0.01798238, G2: 0.01897403, G3: 0.01490554 | Accuracy: G1: 63.49 %, G2: 62.62 %, G3: 62.51 %
+2025-04-22 10:59:27,941  INFO  EPOCH 56 | Validation MSE: G1: 0.01781402, G2: 0.01918272, G3: 0.01487928 | Accuracy: G1: 62.62 %, G2: 62.62 %, G3: 62.51 %
+2025-04-22 10:59:30,385  INFO  EPOCH 57 | Validation MSE: G1: 0.01816763, G2: 0.01905615, G3: 0.01485512 | Accuracy: G1: 63.38 %, G2: 62.73 %, G3: 62.51 %
+2025-04-22 10:59:32,953  INFO  EPOCH 58 | Validation MSE: G1: 0.01789215, G2: 0.01902278, G3: 0.01505217 | Accuracy: G1: 63.27 %, G2: 62.84 %, G3: 62.62 %
+2025-04-22 10:59:35,496  INFO  EPOCH 59 | Validation MSE: G1: 0.01860794, G2: 0.01893367, G3: 0.01505464 | Accuracy: G1: 63.49 %, G2: 62.73 %, G3: 62.51 %
+2025-04-22 10:59:38,105  INFO  Do distill 1 epoch! Distill from G3 to G2
+2025-04-22 10:59:38,412  INFO  Start cross finetune!  G3 with D1
+2025-04-22 10:59:39,087  INFO  == Cross finetune Epoch [1/10000]: G3: Validation MSE 0.01501111, Validation Acc 62.62%
+2025-04-22 10:59:39,751  INFO  == Cross finetune Epoch [2/10000]: G3: Validation MSE 0.01499894, Validation Acc 62.62%
+2025-04-22 10:59:40,266  INFO  == Cross finetune Epoch [3/10000]: G3: Validation MSE 0.01508683, Validation Acc 62.51%
+2025-04-22 10:59:40,799  INFO  == Cross finetune Epoch [4/10000]: G3: Validation MSE 0.01517308, Validation Acc 62.62%
+2025-04-22 10:59:41,347  INFO  == Cross finetune Epoch [5/10000]: G3: Validation MSE 0.01532260, Validation Acc 62.62%
+2025-04-22 10:59:41,347  INFO  EPOCH 60 | Validation MSE: G1: 0.01863274, G2: 0.01907951, G3: 0.01507867 | Accuracy: G1: 63.27 %, G2: 62.84 %, G3: 62.51 %
+2025-04-22 10:59:44,013  INFO  EPOCH 61 | Validation MSE: G1: 0.01804356, G2: 0.01928896, G3: 0.01511964 | Accuracy: G1: 63.71 %, G2: 62.73 %, G3: 62.73 %
+2025-04-22 10:59:46,279  INFO  EPOCH 62 | Validation MSE: G1: 0.01793026, G2: 0.01931605, G3: 0.01512927 | Accuracy: G1: 63.81 %, G2: 62.84 %, G3: 62.62 %
+2025-04-22 10:59:48,665  INFO  EPOCH 63 | Validation MSE: G1: 0.01783388, G2: 0.01916068, G3: 0.01516717 | Accuracy: G1: 63.27 %, G2: 62.73 %, G3: 62.51 %
+2025-04-22 10:59:51,176  INFO  EPOCH 64 | Validation MSE: G1: 0.01782175, G2: 0.01916755, G3: 0.01518829 | Accuracy: G1: 63.71 %, G2: 62.73 %, G3: 62.51 %
+2025-04-22 10:59:53,444  INFO  EPOCH 65 | Validation MSE: G1: 0.01799684, G2: 0.01928473, G3: 0.01518457 | Accuracy: G1: 63.71 %, G2: 62.62 %, G3: 62.73 %
+2025-04-22 10:59:55,732  INFO  EPOCH 66 | Validation MSE: G1: 0.01841775, G2: 0.01926079, G3: 0.01529889 | Accuracy: G1: 63.71 %, G2: 62.73 %, G3: 62.51 %
+2025-04-22 10:59:58,161  INFO  EPOCH 67 | Validation MSE: G1: 0.01849345, G2: 0.01924486, G3: 0.01532327 | Accuracy: G1: 63.71 %, G2: 62.41 %, G3: 62.51 %
+2025-04-22 11:00:00,698  INFO  EPOCH 68 | Validation MSE: G1: 0.01849937, G2: 0.01920658, G3: 0.01526639 | Accuracy: G1: 63.92 %, G2: 62.73 %, G3: 62.62 %
+2025-04-22 11:00:03,339  INFO  EPOCH 69 | Validation MSE: G1: 0.01831397, G2: 0.01901083, G3: 0.01530424 | Accuracy: G1: 63.71 %, G2: 62.73 %, G3: 62.51 %
+2025-04-22 11:00:05,999  INFO  Start cross finetune!  G3 with D1
+2025-04-22 11:00:06,649  INFO  == Cross finetune Epoch [1/10000]: G3: Validation MSE 0.01535310, Validation Acc 62.73%
+2025-04-22 11:00:07,325  INFO  == Cross finetune Epoch [2/10000]: G3: Validation MSE 0.01533287, Validation Acc 62.51%
+2025-04-22 11:00:08,015  INFO  == Cross finetune Epoch [3/10000]: G3: Validation MSE 0.01535316, Validation Acc 62.51%
+2025-04-22 11:00:08,693  INFO  == Cross finetune Epoch [4/10000]: G3: Validation MSE 0.01536904, Validation Acc 62.51%
+2025-04-22 11:00:09,360  INFO  == Cross finetune Epoch [5/10000]: G3: Validation MSE 0.01537750, Validation Acc 62.51%
+2025-04-22 11:00:09,360  INFO  EPOCH 70 | Validation MSE: G1: 0.01829771, G2: 0.01898759, G3: 0.01536193 | Accuracy: G1: 63.71 %, G2: 62.84 %, G3: 62.62 %
+2025-04-22 11:00:11,915  INFO  EPOCH 71 | Validation MSE: G1: 0.01862638, G2: 0.01913150, G3: 0.01548382 | Accuracy: G1: 63.81 %, G2: 63.06 %, G3: 62.95 %
+2025-04-22 11:00:13,860  INFO  EPOCH 72 | Validation MSE: G1: 0.01858750, G2: 0.01918119, G3: 0.01541920 | Accuracy: G1: 63.92 %, G2: 63.06 %, G3: 62.51 %
+2025-04-22 11:00:16,147  INFO  EPOCH 73 | Validation MSE: G1: 0.01838195, G2: 0.01932844, G3: 0.01548613 | Accuracy: G1: 63.81 %, G2: 63.06 %, G3: 62.95 %
+2025-04-22 11:00:18,650  INFO  EPOCH 74 | Validation MSE: G1: 0.01843445, G2: 0.01930313, G3: 0.01547170 | Accuracy: G1: 63.81 %, G2: 63.16 %, G3: 62.73 %
+2025-04-22 11:00:20,698  INFO  EPOCH 75 | Validation MSE: G1: 0.01835544, G2: 0.01913711, G3: 0.01541114 | Accuracy: G1: 63.71 %, G2: 62.73 %, G3: 62.73 %
+2025-04-22 11:00:22,774  INFO  EPOCH 76 | Validation MSE: G1: 0.01824053, G2: 0.01914793, G3: 0.01528069 | Accuracy: G1: 63.81 %, G2: 63.16 %, G3: 62.73 %
+2025-04-22 11:00:24,869  INFO  EPOCH 77 | Validation MSE: G1: 0.01825471, G2: 0.01922923, G3: 0.01520950 | Accuracy: G1: 63.71 %, G2: 63.06 %, G3: 62.95 %
+2025-04-22 11:00:26,998  INFO  EPOCH 78 | Validation MSE: G1: 0.01834807, G2: 0.01922718, G3: 0.01520854 | Accuracy: G1: 63.71 %, G2: 63.06 %, G3: 62.73 %
+2025-04-22 11:00:29,201  INFO  EPOCH 79 | Validation MSE: G1: 0.01806965, G2: 0.01926458, G3: 0.01520067 | Accuracy: G1: 63.71 %, G2: 62.95 %, G3: 62.95 %
+2025-04-22 11:00:31,260  INFO  Start cross finetune!  G3 with D1
+2025-04-22 11:00:31,779  INFO  == Cross finetune Epoch [1/10000]: G3: Validation MSE 0.01552339, Validation Acc 62.95%
+2025-04-22 11:00:32,371  INFO  == Cross finetune Epoch [2/10000]: G3: Validation MSE 0.01538336, Validation Acc 62.84%
+2025-04-22 11:00:32,966  INFO  == Cross finetune Epoch [3/10000]: G3: Validation MSE 0.01538676, Validation Acc 62.95%
+2025-04-22 11:00:33,441  INFO  == Cross finetune Epoch [4/10000]: G3: Validation MSE 0.01538308, Validation Acc 62.95%
+2025-04-22 11:00:34,002  INFO  == Cross finetune Epoch [5/10000]: G3: Validation MSE 0.01531040, Validation Acc 62.95%
+2025-04-22 11:00:34,002  INFO  EPOCH 80 | Validation MSE: G1: 0.01824099, G2: 0.01919878, G3: 0.01543102 | Accuracy: G1: 63.81 %, G2: 63.06 %, G3: 62.95 %
+2025-04-22 11:00:36,008  INFO  EPOCH 81 | Validation MSE: G1: 0.01828033, G2: 0.01915950, G3: 0.01532071 | Accuracy: G1: 63.92 %, G2: 63.06 %, G3: 62.95 %
+2025-04-22 11:00:38,089  INFO  EPOCH 82 | Validation MSE: G1: 0.01821624, G2: 0.01925007, G3: 0.01530456 | Accuracy: G1: 63.81 %, G2: 63.16 %, G3: 62.95 %
+2025-04-22 11:00:40,391  INFO  EPOCH 83 | Validation MSE: G1: 0.01820196, G2: 0.01935359, G3: 0.01529835 | Accuracy: G1: 63.60 %, G2: 62.84 %, G3: 62.84 %
+2025-04-22 11:00:42,905  INFO  EPOCH 84 | Validation MSE: G1: 0.01811835, G2: 0.01939452, G3: 0.01524493 | Accuracy: G1: 63.60 %, G2: 62.73 %, G3: 62.73 %
+2025-04-22 11:00:45,100  INFO  EPOCH 85 | Validation MSE: G1: 0.01814676, G2: 0.01931650, G3: 0.01524262 | Accuracy: G1: 63.71 %, G2: 62.84 %, G3: 62.73 %
+2025-04-22 11:00:47,485  INFO  EPOCH 86 | Validation MSE: G1: 0.01818884, G2: 0.01931330, G3: 0.01527019 | Accuracy: G1: 63.60 %, G2: 62.73 %, G3: 62.73 %
+2025-04-22 11:00:49,942  INFO  EPOCH 87 | Validation MSE: G1: 0.01825924, G2: 0.01919034, G3: 0.01533525 | Accuracy: G1: 63.71 %, G2: 62.84 %, G3: 62.95 %
+2025-04-22 11:00:52,208  INFO  EPOCH 88 | Validation MSE: G1: 0.01825993, G2: 0.01917197, G3: 0.01539216 | Accuracy: G1: 63.49 %, G2: 62.73 %, G3: 62.84 %
+2025-04-22 11:00:54,514  INFO  EPOCH 89 | Validation MSE: G1: 0.01817655, G2: 0.01916380, G3: 0.01533091 | Accuracy: G1: 63.49 %, G2: 62.73 %, G3: 62.95 %
+2025-04-22 11:00:57,410  INFO  Do distill 1 epoch! Distill from G3 to G2
+2025-04-22 11:00:57,723  INFO  Start cross finetune!  G3 with D1
+2025-04-22 11:00:58,296  INFO  == Cross finetune Epoch [1/10000]: G3: Validation MSE 0.01529137, Validation Acc 62.84%
+2025-04-22 11:00:58,922  INFO  == Cross finetune Epoch [2/10000]: G3: Validation MSE 0.01539907, Validation Acc 62.95%
+2025-04-22 11:00:59,828  INFO  == Cross finetune Epoch [3/10000]: G3: Validation MSE 0.01544079, Validation Acc 62.95%
+2025-04-22 11:01:00,432  INFO  == Cross finetune Epoch [4/10000]: G3: Validation MSE 0.01539179, Validation Acc 62.84%
+2025-04-22 11:01:01,012  INFO  == Cross finetune Epoch [5/10000]: G3: Validation MSE 0.01532879, Validation Acc 62.95%
+2025-04-22 11:01:01,012  INFO  EPOCH 90 | Validation MSE: G1: 0.01817800, G2: 0.01917618, G3: 0.01522487 | Accuracy: G1: 63.71 %, G2: 62.62 %, G3: 62.84 %
+2025-04-22 11:01:03,167  INFO  EPOCH 91 | Validation MSE: G1: 0.01812758, G2: 0.01917257, G3: 0.01525463 | Accuracy: G1: 63.81 %, G2: 62.84 %, G3: 62.95 %
+2025-04-22 11:01:05,574  INFO  EPOCH 92 | Validation MSE: G1: 0.01814158, G2: 0.01918430, G3: 0.01520577 | Accuracy: G1: 63.71 %, G2: 62.84 %, G3: 62.95 %
+2025-04-22 11:01:08,002  INFO  EPOCH 93 | Validation MSE: G1: 0.01809779, G2: 0.01911875, G3: 0.01519329 | Accuracy: G1: 63.49 %, G2: 62.84 %, G3: 62.95 %
+2025-04-22 11:01:10,361  INFO  EPOCH 94 | Validation MSE: G1: 0.01808269, G2: 0.01900261, G3: 0.01524367 | Accuracy: G1: 63.71 %, G2: 62.73 %, G3: 63.06 %
+2025-04-22 11:01:12,753  INFO  EPOCH 95 | Validation MSE: G1: 0.01811403, G2: 0.01917990, G3: 0.01522836 | Accuracy: G1: 63.71 %, G2: 62.84 %, G3: 62.95 %
+2025-04-22 11:01:14,936  INFO  EPOCH 96 | Validation MSE: G1: 0.01813655, G2: 0.01925291, G3: 0.01525977 | Accuracy: G1: 63.71 %, G2: 62.84 %, G3: 62.73 %
+2025-04-22 11:01:17,766  INFO  EPOCH 97 | Validation MSE: G1: 0.01815755, G2: 0.01926531, G3: 0.01529227 | Accuracy: G1: 63.71 %, G2: 63.06 %, G3: 62.95 %
+2025-04-22 11:01:20,350  INFO  EPOCH 98 | Validation MSE: G1: 0.01817387, G2: 0.01928352, G3: 0.01523646 | Accuracy: G1: 63.60 %, G2: 62.84 %, G3: 62.95 %
+2025-04-22 11:01:22,754  INFO  EPOCH 99 | Validation MSE: G1: 0.01818016, G2: 0.01918786, G3: 0.01539640 | Accuracy: G1: 63.49 %, G2: 62.84 %, G3: 62.84 %
+2025-04-22 11:01:24,842  INFO  Start cross finetune!  G3 with D1
+2025-04-22 11:01:25,334  INFO  == Cross finetune Epoch [1/10000]: G3: Validation MSE 0.01554140, Validation Acc 62.95%
+2025-04-22 11:01:25,902  INFO  == Cross finetune Epoch [2/10000]: G3: Validation MSE 0.01549760, Validation Acc 62.73%
+2025-04-22 11:01:26,685  INFO  == Cross finetune Epoch [3/10000]: G3: Validation MSE 0.01551650, Validation Acc 63.06%
+2025-04-22 11:01:27,313  INFO  == Cross finetune Epoch [4/10000]: G3: Validation MSE 0.01542041, Validation Acc 63.06%
+2025-04-22 11:01:27,921  INFO  == Cross finetune Epoch [5/10000]: G3: Validation MSE 0.01544288, Validation Acc 62.95%
+2025-04-22 11:01:27,921  INFO  EPOCH 100 | Validation MSE: G1: 0.01813526, G2: 0.01925180, G3: 0.01555418 | Accuracy: G1: 63.60 %, G2: 62.84 %, G3: 62.84 %
+2025-04-22 11:01:30,436  INFO  EPOCH 101 | Validation MSE: G1: 0.01819200, G2: 0.01929387, G3: 0.01543458 | Accuracy: G1: 63.49 %, G2: 62.84 %, G3: 62.95 %
+2025-04-22 11:01:32,798  INFO  EPOCH 102 | Validation MSE: G1: 0.01815678, G2: 0.01933880, G3: 0.01550351 | Accuracy: G1: 63.60 %, G2: 62.73 %, G3: 62.95 %
+2025-04-22 11:01:34,997  INFO  EPOCH 103 | Validation MSE: G1: 0.01809463, G2: 0.01930038, G3: 0.01543131 | Accuracy: G1: 63.60 %, G2: 62.84 %, G3: 63.06 %
+2025-04-22 11:01:38,085  INFO  EPOCH 104 | Validation MSE: G1: 0.01804915, G2: 0.01933946, G3: 0.01543346 | Accuracy: G1: 63.71 %, G2: 62.73 %, G3: 63.16 %
+2025-04-22 11:01:40,543  INFO  EPOCH 105 | Validation MSE: G1: 0.01808280, G2: 0.01932836, G3: 0.01554846 | Accuracy: G1: 63.49 %, G2: 62.95 %, G3: 62.84 %
+2025-04-22 11:01:42,913  INFO  EPOCH 106 | Validation MSE: G1: 0.01810732, G2: 0.01932660, G3: 0.01558336 | Accuracy: G1: 63.49 %, G2: 62.84 %, G3: 62.84 %
+2025-04-22 11:01:45,720  INFO  EPOCH 107 | Validation MSE: G1: 0.01817535, G2: 0.01935783, G3: 0.01554840 | Accuracy: G1: 63.71 %, G2: 62.95 %, G3: 62.95 %
+2025-04-22 11:01:48,606  INFO  EPOCH 108 | Validation MSE: G1: 0.01806920, G2: 0.01928116, G3: 0.01544784 | Accuracy: G1: 63.49 %, G2: 62.73 %, G3: 62.95 %
+2025-04-22 11:01:51,515  INFO  EPOCH 109 | Validation MSE: G1: 0.01800337, G2: 0.01931249, G3: 0.01546128 | Accuracy: G1: 63.49 %, G2: 62.84 %, G3: 62.95 %
+2025-04-22 11:01:54,386  INFO  Start cross finetune!  G3 with D1
+2025-04-22 11:01:55,234  INFO  == Cross finetune Epoch [1/10000]: G3: Validation MSE 0.01547751, Validation Acc 62.95%
+2025-04-22 11:01:55,866  INFO  == Cross finetune Epoch [2/10000]: G3: Validation MSE 0.01545142, Validation Acc 62.95%
+2025-04-22 11:01:56,588  INFO  == Cross finetune Epoch [3/10000]: G3: Validation MSE 0.01557849, Validation Acc 63.06%
+2025-04-22 11:01:57,197  INFO  == Cross finetune Epoch [4/10000]: G3: Validation MSE 0.01574497, Validation Acc 62.84%
+2025-04-22 11:01:57,727  INFO  == Cross finetune Epoch [5/10000]: G3: Validation MSE 0.01577170, Validation Acc 62.84%
+2025-04-22 11:01:57,727  INFO  EPOCH 110 | Validation MSE: G1: 0.01794894, G2: 0.01938136, G3: 0.01554869 | Accuracy: G1: 63.49 %, G2: 62.84 %, G3: 62.95 %
+2025-04-22 11:01:59,968  INFO  EPOCH 111 | Validation MSE: G1: 0.01807565, G2: 0.01937380, G3: 0.01572344 | Accuracy: G1: 63.71 %, G2: 62.73 %, G3: 63.06 %
+2025-04-22 11:02:02,525  INFO  EPOCH 112 | Validation MSE: G1: 0.01811379, G2: 0.01931761, G3: 0.01573040 | Accuracy: G1: 63.49 %, G2: 62.84 %, G3: 62.84 %
+2025-04-22 11:02:05,158  INFO  EPOCH 113 | Validation MSE: G1: 0.01811400, G2: 0.01922737, G3: 0.01567056 | Accuracy: G1: 63.81 %, G2: 63.06 %, G3: 62.95 %
+2025-04-22 11:02:07,559  INFO  EPOCH 114 | Validation MSE: G1: 0.01813994, G2: 0.01927791, G3: 0.01559860 | Accuracy: G1: 63.49 %, G2: 62.95 %, G3: 62.95 %
+2025-04-22 11:02:10,693  INFO  EPOCH 115 | Validation MSE: G1: 0.01810848, G2: 0.01924722, G3: 0.01563371 | Accuracy: G1: 63.71 %, G2: 62.95 %, G3: 62.84 %
+2025-04-22 11:02:13,455  INFO  EPOCH 116 | Validation MSE: G1: 0.01813251, G2: 0.01932139, G3: 0.01572701 | Accuracy: G1: 63.71 %, G2: 62.95 %, G3: 62.84 %
+2025-04-22 11:02:16,195  INFO  EPOCH 117 | Validation MSE: G1: 0.01817922, G2: 0.01932675, G3: 0.01580822 | Accuracy: G1: 63.49 %, G2: 62.84 %, G3: 62.73 %
+2025-04-22 11:02:19,111  INFO  EPOCH 118 | Validation MSE: G1: 0.01808588, G2: 0.01934367, G3: 0.01576754 | Accuracy: G1: 63.49 %, G2: 63.06 %, G3: 62.84 %
+2025-04-22 11:02:22,001  INFO  EPOCH 119 | Validation MSE: G1: 0.01808070, G2: 0.01930212, G3: 0.01575008 | Accuracy: G1: 63.49 %, G2: 63.06 %, G3: 62.73 %
+2025-04-22 11:02:24,412  INFO  Do distill 1 epoch! Distill from G3 to G2
+2025-04-22 11:02:24,779  INFO  Start cross finetune!  G3 with D1
+2025-04-22 11:02:25,390  INFO  == Cross finetune Epoch [1/10000]: G3: Validation MSE 0.01578194, Validation Acc 63.06%
+2025-04-22 11:02:25,989  INFO  == Cross finetune Epoch [2/10000]: G3: Validation MSE 0.01570251, Validation Acc 62.84%
+2025-04-22 11:02:26,564  INFO  == Cross finetune Epoch [3/10000]: G3: Validation MSE 0.01580510, Validation Acc 62.84%
+2025-04-22 11:02:27,142  INFO  == Cross finetune Epoch [4/10000]: G3: Validation MSE 0.01580936, Validation Acc 63.06%
+2025-04-22 11:02:27,827  INFO  == Cross finetune Epoch [5/10000]: G3: Validation MSE 0.01578354, Validation Acc 63.06%
+2025-04-22 11:02:27,827  INFO  EPOCH 120 | Validation MSE: G1: 0.01813661, G2: 0.01931402, G3: 0.01575003 | Accuracy: G1: 63.92 %, G2: 62.84 %, G3: 62.95 %
+2025-04-22 11:02:30,160  INFO  EPOCH 121 | Validation MSE: G1: 0.01808262, G2: 0.01928393, G3: 0.01580672 | Accuracy: G1: 63.81 %, G2: 62.95 %, G3: 62.95 %
+2025-04-22 11:02:32,601  INFO  EPOCH 122 | Validation MSE: G1: 0.01807343, G2: 0.01937207, G3: 0.01583920 | Accuracy: G1: 63.81 %, G2: 62.95 %, G3: 63.06 %
+2025-04-22 11:02:35,295  INFO  EPOCH 123 | Validation MSE: G1: 0.01808403, G2: 0.01940964, G3: 0.01580036 | Accuracy: G1: 63.92 %, G2: 62.95 %, G3: 63.06 %
+2025-04-22 11:02:37,574  INFO  EPOCH 124 | Validation MSE: G1: 0.01801612, G2: 0.01947785, G3: 0.01566688 | Accuracy: G1: 63.49 %, G2: 63.06 %, G3: 63.06 %
+2025-04-22 11:02:39,776  INFO  EPOCH 125 | Validation MSE: G1: 0.01812190, G2: 0.01947652, G3: 0.01557697 | Accuracy: G1: 63.71 %, G2: 62.73 %, G3: 62.95 %

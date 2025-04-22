@@ -1,0 +1,56 @@
+2025-04-22 10:53:41,044  INFO  ARGS = {
+  "notes": "单个GAN的Transformer试试看",
+  "data_path": "database/processed_黄金_day.csv",
+  "output_dir": "out_put/multi",
+  "ckpt_dir": "ckpt",
+  "feature_columns": [
+    2,
+    20,
+    2,
+    20,
+    2,
+    20
+  ],
+  "target_columns": [
+    [
+      1
+    ]
+  ],
+  "start_timestamp": 31,
+  "end_timestamp": -1,
+  "window_sizes": [
+    15,
+    15,
+    15
+  ],
+  "N_pairs": 3,
+  "num_classes": 3,
+  "generators": [
+    "transformer",
+    "transformer",
+    "transformer"
+  ],
+  "discriminators": null,
+  "distill_epochs": 1,
+  "cross_finetune_epochs": 5,
+  "device": [
+    0
+  ],
+  "num_epochs": 10000,
+  "lr": 2e-05,
+  "batch_size": 64,
+  "train_split": 0.7,
+  "random_seed": 3407,
+  "amp_dtype": "none",
+  "mode": "train",
+  "ckpt_path": "lastest"
+}
+2025-04-22 10:53:43,637  INFO  EPOCH 1 | Validation MSE: G1: 0.10393873, G2: 0.04871649, G3: 0.24743913 | Accuracy: G1: 0.5590, G2: 0.4355, G3: 0.5601
+2025-04-22 10:53:46,153  INFO  EPOCH 2 | Validation MSE: G1: 0.03154410, G2: 0.02733706, G3: 0.02933370 | Accuracy: G1: 0.5612, G2: 0.4496, G3: 0.5601
+2025-04-22 10:53:48,331  INFO  EPOCH 3 | Validation MSE: G1: 0.03293998, G2: 0.03328383, G3: 0.03102636 | Accuracy: G1: 0.5038, G2: 0.4355, G3: 0.5320
+2025-04-22 10:53:50,853  INFO  EPOCH 4 | Validation MSE: G1: 0.02711208, G2: 0.02263325, G3: 0.02471115 | Accuracy: G1: 0.5580, G2: 0.5417, G3: 0.5666
+2025-04-22 10:53:53,296  INFO  EPOCH 5 | Validation MSE: G1: 0.03280519, G2: 0.02628542, G3: 0.01810215 | Accuracy: G1: 0.5569, G2: 0.5536, G3: 0.5471
+2025-04-22 10:53:55,948  INFO  EPOCH 6 | Validation MSE: G1: 0.02703938, G2: 0.03172776, G3: 0.02002010 | Accuracy: G1: 0.5634, G2: 0.5775, G3: 0.5634
+2025-04-22 10:53:58,513  INFO  EPOCH 7 | Validation MSE: G1: 0.03119751, G2: 0.02466453, G3: 0.01950721 | Accuracy: G1: 0.5417, G2: 0.5428, G3: 0.5395
+2025-04-22 10:54:00,927  INFO  EPOCH 8 | Validation MSE: G1: 0.02665301, G2: 0.02187868, G3: 0.01353295 | Accuracy: G1: 0.5601, G2: 0.5601, G3: 0.5601
+2025-04-22 10:54:03,375  INFO  EPOCH 9 | Validation MSE: G1: 0.02569165, G2: 0.02494675, G3: 0.01672463 | Accuracy: G1: 0.5309, G2: 0.5070, G3: 0.5255

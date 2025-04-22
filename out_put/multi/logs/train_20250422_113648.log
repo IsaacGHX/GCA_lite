@@ -1,0 +1,51 @@
+2025-04-22 11:36:48,094  INFO  ARGS = {
+  "notes": "单个GAN的Transformer试试看",
+  "data_path": "database/processed_黄金_day.csv",
+  "output_dir": "out_put/multi",
+  "ckpt_dir": "ckpt",
+  "log_diff": true,
+  "feature_columns": [
+    2,
+    20,
+    2,
+    20,
+    2,
+    20
+  ],
+  "target_columns": [
+    [
+      1
+    ]
+  ],
+  "start_timestamp": 31,
+  "end_timestamp": -1,
+  "window_sizes": [
+    15,
+    15,
+    15
+  ],
+  "N_pairs": 3,
+  "num_classes": 3,
+  "generators": [
+    "transformer",
+    "transformer",
+    "transformer"
+  ],
+  "discriminators": null,
+  "distill_epochs": 1,
+  "cross_finetune_epochs": 5,
+  "device": [
+    0
+  ],
+  "num_epochs": 10000,
+  "lr": 2e-05,
+  "batch_size": 64,
+  "train_split": 0.7,
+  "random_seed": 3407,
+  "amp_dtype": "none",
+  "mode": "train",
+  "ckpt_path": "lastest"
+}
+2025-04-22 11:36:50,478  INFO  EPOCH 1 | Validation MSE: G1: 0.02888960, G2: 0.03054660, G3: 0.03396030 | Accuracy: G1: 50.16 %, G2: 42.25 %, G3: 41.71 %
+2025-04-22 11:36:52,442  INFO  EPOCH 2 | Validation MSE: G1: 0.03188618, G2: 0.03092341, G3: 0.03165068 | Accuracy: G1: 51.68 %, G2: 43.12 %, G3: 43.99 %
+2025-04-22 11:36:54,458  INFO  EPOCH 3 | Validation MSE: G1: 0.02806854, G2: 0.03532334, G3: 0.02970217 | Accuracy: G1: 47.45 %, G2: 41.82 %, G3: 41.71 %

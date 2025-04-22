@@ -6,7 +6,7 @@ import torch
 import matplotlib.pyplot as plt
 import logging
 
-def validate(model, val_x, val_y):
+def validate(model, val_x, val_y, val_labels):
     model.eval()  # 将模型设置为评估模式
     with torch.no_grad():  # 禁止计算梯度
         val_x = val_x.clone().detach().float()
@@ -17,14 +17,25 @@ def validate(model, val_x, val_y):
         else:
             val_y = val_y.clone().detach().float()
 
+        # labels 用于分类
+        if isinstance(val_labels, np.ndarray):
+            val_lbl_t = torch.tensor(val_labels).long().to(val_x.device)
+        else:
+            val_lbl_t = val_labels.clone().detach().long().to(val_x.device)
+
         # 使用模型进行预测
-        predictions, _ = model(val_x)
+        predictions, logits  = model(val_x)
         predictions = predictions.cpu().numpy()
         val_y = val_y.cpu().numpy()
 
         # 计算均方误差（MSE）作为验证损失
         mse_loss = F.mse_loss(torch.tensor(predictions).float().squeeze(), torch.tensor(val_y).float().squeeze())
-        return mse_loss
+
+        true_cls = val_lbl_t[:, -1].squeeze()  # [B]
+        pred_cls = logits.argmax(dim=1)  # [B]
+        acc = (pred_cls == true_cls).float().mean()  # 标量
+
+        return mse_loss, acc
 
 
 def plot_generator_losses(data_G, output_dir):

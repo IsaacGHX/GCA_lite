@@ -20,7 +20,7 @@ scaler = GradScaler()
 
 def train_multi_gan(args, generators, discriminators, dataloaders,
                     window_sizes,
-                    y_scaler, train_xes, train_y, val_xes, val_y,
+                    y_scaler, train_xes, train_y, val_xes, val_y, val_labels,
                     distill_epochs, cross_finetune_epochs,
                     num_epochs,
                     output_dir,
@@ -77,11 +77,13 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
     d_keys = [f'D{i}' for i in range(1, N + 1)]
     MSE_g_keys = [f'MSE_G{i}' for i in range(1, N + 1)]
     val_loss_keys = [f'val_G{i}' for i in range(1, N + 1)]
+    acc_keys = [f'acc_G{i}' for i in range(1, N + 1)]
 
     keys.extend(g_keys)
     keys.extend(d_keys)
     keys.extend(MSE_g_keys)
     keys.extend(val_loss_keys)
+    keys.extend(acc_keys)
 
     d_g_keys = []
     for g_key in g_keys:
@@ -220,7 +222,7 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
         improved = [False] * 3
         for i in range(N):
 
-            hists_dict[val_loss_keys[i]][epoch] = validate(generators[i], val_xes[i], val_y)
+            hists_dict[val_loss_keys[i]][epoch],hists_dict[acc_keys[i]][epoch]  = validate(generators[i], val_xes[i], val_y, val_labels[i])
 
             if hists_dict[val_loss_keys[i]][epoch].item() < best_mse[i]:
                 best_mse[i] = hists_dict[val_loss_keys[i]][epoch]
@@ -304,7 +306,7 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
                     scaler.step(optimizers_G[G_rank[0]])
                     scaler.update()
 
-                validate_G_loss = validate(generators[G_rank[0]], val_xes[G_rank[0]], val_y)
+                validate_G_loss, validate_G_acc = validate(generators[G_rank[0]], val_xes[G_rank[0]], val_y, val_labels[G_rank[0]])
 
                 if validate_G_loss >= cross_best_Gloss:
                     generators[G_rank[0]].load_state_dict(best_model_state[G_rank[0]])
@@ -316,20 +318,24 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
                     best_epoch[G_rank[0]] = epoch + 1
 
                 print(
-                    f"== Cross finetune Epoch [{e + 1}/{num_epochs}]: G{G_rank[0] + 1}: Validation MSE {validate_G_loss:.8f}")
+                    f"== Cross finetune Epoch [{e + 1}/{num_epochs}]: G{G_rank[0] + 1}: Validation MSE {validate_G_loss:.8f}, Validation Acc {validate_G_acc*100:.2f}%")
                 logging.info(
-                    f"== Cross finetune Epoch [{e + 1}/{num_epochs}]: G{G_rank[0] + 1}: Validation MSE {validate_G_loss:.8f}")  # NEW
+                    f"== Cross finetune Epoch [{e + 1}/{num_epochs}]: G{G_rank[0] + 1}: Validation MSE {validate_G_loss:.8f}, Validation Acc {validate_G_acc*100:.2f}%")  # NEW
 
         # 每个epoch结束时，打印训练过程中的损失
         print(f"Epoch [{epoch + 1}/{num_epochs}]")
         # 动态生成打印字符串
-        log_str = ", ".join(
+        log_str_mse = ", ".join(
             f"G{i + 1}: {hists_dict[key][epoch]:.8f}"
             for i, key in enumerate(val_loss_keys)
         )
-        print(f"Validation MSE {log_str}")
+        log_str_acc = ", ".join(
+            f"G{i + 1}: {hists_dict[key][epoch]*100:.2f} %"
+            for i, key in enumerate(acc_keys)
+        )
+        print(f"Validation MSE {log_str_mse}, Accuracy {log_str_acc}")
         print(f"patience counter:{patience_counter}")
-        logging.info("EPOCH %d | Validation MSE: %s ", epoch + 1, log_str)  # NEW
+        logging.info("EPOCH %d | Validation MSE: %s | Accuracy: %s", epoch + 1, log_str_mse, log_str_acc)  # NEW
         if not any(improved):
             patience_counter += 1
         else:
