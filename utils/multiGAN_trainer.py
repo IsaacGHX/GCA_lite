@@ -1,9 +1,5 @@
-import numpy as np
-import torch
 import torch.nn as nn
 import copy
-
-from spacy.pipeline.lemmatizer import lemmatizer_score
 
 from .evaluate_visualization import *
 import torch.optim.lr_scheduler as lr_scheduler

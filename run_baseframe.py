@@ -6,7 +6,6 @@ import pandas as pd
 import os
 import models
 from utils.logger import setup_experiment_logging
-import logging
 
 def run_experiments(args):
     # 创建保存结果的CSV文件

@@ -1,5 +1,4 @@
 from GCA_base import GCABase
-import time
 import torch
 import numpy as np
 from functools import wraps
@@ -14,7 +13,6 @@ import os
 import time
 import glob
 from utils.evaluate_visualization import evaluate_best_models
-import torch.nn.functional as F
 
 
 def log_execution_time(func):

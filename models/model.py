@@ -1,6 +1,4 @@
-import torch
 import torch.nn as nn
-from torch.nn import TransformerEncoder, TransformerEncoderLayer  # Transformer 模块
 import math
 import numpy as np
 import torch.nn.functional as F

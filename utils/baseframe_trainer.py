@@ -1,15 +1,8 @@
-import numpy as np
-import torch
-import torch.nn as nn
 import copy
-
-from spacy.pipeline.lemmatizer import lemmatizer_score
 
 from .evaluate_visualization import *
 import torch.optim.lr_scheduler as lr_scheduler
-import time
 import torch.nn.functional as F
-from torch.nn.utils import clip_grad_norm_
 
 import logging  # NEW
 
