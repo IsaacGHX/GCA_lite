@@ -86,7 +86,7 @@ if __name__ == "__main__":
     parser.add_argument('--data_path', type=str, required=False, help="Path to the input data file",
                         default="database/processed_黄金_day.csv")
     parser.add_argument('--output_dir', type=str, required=False, help="Directory to save the output",
-                        default="out_put/multi")
+                        default=r"D:\Desktop\SHU\Intern\同梁AI量化\papers\all_logs\main/out_put/multi")
     parser.add_argument('--ckpt_dir', type=str, required=False, help="Directory to save the checkpoints",
                         default="ckpt")
     parser.add_argument('--log_diff', type=bool,  help="whether to use log diff to rescale the data", default=False)

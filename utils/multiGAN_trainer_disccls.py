@@ -34,7 +34,7 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
                         [0.333, 0.333, 0.333, 1.0]  # gammas_final...,
                     ],
                     logger=None,
-                    dynamic_weight = True):
+                    dynamic_weight = False):
     N = len(generators)
 
     assert N == len(discriminators)
@@ -289,109 +289,109 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
                     LABELS.append(label_last.to(device).long())
                     cross_best_Gloss = np.inf
 
-                    #     generators[G_rank[0]].eval()
-                    #     discriminators[D_rank[0]].train()
-                    #
-                    #     loss_D, lossD_G = discriminate_fake(args, [X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[D_rank[0]]],
-                    #                                         [generators[G_rank[0]]], [discriminators[D_rank[0]]],
-                    #                                         [window_sizes[D_rank[0]]], target_num,
-                    #                                         criterion, weight_matrix[D_rank[0], G_rank[0]],
-                    #                                         device, mode="train_D")
-                    #
-                    #     optimizers_D[D_rank[0]].zero_grad()
-                    #
-                    #     # loss_D.sum(dim=0).backward()
-                    #     scaler.scale(loss_D.sum(dim=0)).backward()
-                    #     # optimizers_D[D_rank[0]].step()
-                    #     scaler.step(optimizers_D[D_rank[0]])
-                    #     scaler.update()
-                    #
-                    #     discriminators[D_rank[0]].eval()
-                    #     generators[G_rank[0]].train()
-                    #
-                    #     '''训练生成器'''
-                    #     weight = weight_matrix[:, :-1].clone().detach()  # [N, N]
-                    #     loss_G, loss_mse_G = discriminate_fake(args, [X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[D_rank[0]]],
-                    #                                            [generators[G_rank[0]]], [discriminators[D_rank[0]]],
-                    #                                            [window_sizes[D_rank[0]]], target_num,
-                    #                                            criterion, weight[D_rank[0], G_rank[0]],
-                    #                                            device,
-                    #                                            mode="train_G")
-                    #
-                    #     optimizers_G[G_rank[0]].zero_grad()
-                    #     # loss_G.sum(dim=0).backward()
-                    #     scaler.scale(loss_G.sum(dim=0)).backward()
-                    #     # optimizers_G[G_rank[0]].step()
-                    #     scaler.step(optimizers_G[G_rank[0]])
-                    #     scaler.update()
-                    #
-                    # validate_G_loss, validate_G_acc = validate(generators[G_rank[0]], val_xes[G_rank[0]], val_y, val_labels[G_rank[0]])
+                    generators[G_rank[0]].eval()
+                    discriminators[D_rank[0]].train()
 
-                    g0 = G_rank[0]  # 最优 Generator 索引
-                    # —— 1. 训练所有 D_i ——
-                    for d0 in D_rank:
-                        generators[g0].eval()
-                        discriminators[d0].train()
+                    loss_D, lossD_G = discriminate_fake(args, [X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[D_rank[0]]],
+                                                        [generators[G_rank[0]]], [discriminators[D_rank[0]]],
+                                                        [window_sizes[D_rank[0]]], target_num,
+                                                        criterion, weight_matrix[D_rank[0], G_rank[0]],
+                                                        device, mode="train_D")
 
-                        # 只用 G_best 的那路输入 X[g0]，对应 D_i 的标签 LABELS[d0]
-                        loss_D, _ = discriminate_fake(
-                            args,
-                            [X[g0]], [Y[d0]], [LABELS[d0]],
-                            [generators[g0]], [discriminators[d0]],
-                            [window_sizes[d0]], target_num,
-                            criterion,
-                            weight_matrix[d0, g0],  # 原来给 (D_i, G_best) 的权重
-                            device,
-                            mode="train_D"
-                        )
-                        optimizers_D[d0].zero_grad()
-                        scaler.scale(loss_D.sum()).backward()
-                        scaler.step(optimizers_D[d0])
-                        scaler.update()
+                    optimizers_D[D_rank[0]].zero_grad()
 
-                    # —— 2. 找到对 G_best 损失最小的 D ——
-                    gen_losses = []
-                    for d0 in D_rank:
-                        # 注意此处 mode="train_G"，返回 loss_G, loss_mse_G
-                        loss_G, _ = discriminate_fake(
-                            args,
-                            [X[g0]], [Y[d0]], [LABELS[d0]],
-                            [generators[g0]], [discriminators[d0]],
-                            [window_sizes[d0]], target_num,
-                            criterion,
-                            weight_matrix[d0, g0],
-                            device,
-                            mode="train_G"
-                        )
-                        gen_losses.append(loss_G.item())
-
-                    # 最小损失对应的 D 索引
-                    d_min = D_rank[int(np.argmin(gen_losses))]
-
-                    # —— 3. 用 D_min 训练生成器 ——
-                    discriminators[d_min].eval()
-                    generators[g0].train()
-
-                    loss_G, loss_mse_G = discriminate_fake(
-                        args,
-                        [X[g0]], [Y[d_min]], [LABELS[d_min]],
-                        [generators[g0]], [discriminators[d_min]],
-                        [window_sizes[d_min]], target_num,
-                        criterion,
-                        weight_matrix[d_min, g0],
-                        device,
-                        mode="train_G"
-                    )
-                    optimizers_G[g0].zero_grad()
-                    scaler.scale(loss_G.sum()).backward()
-                    scaler.step(optimizers_G[g0])
+                    # loss_D.sum(dim=0).backward()
+                    scaler.scale(loss_D.sum(dim=0)).backward()
+                    # optimizers_D[D_rank[0]].step()
+                    scaler.step(optimizers_D[D_rank[0]])
                     scaler.update()
 
-                    # 最后再做一次验证
-                    validate_G_loss, validate_G_acc = validate(
-                        generators[g0],
-                        val_xes[g0], val_y, val_labels[g0]
-                    )
+                    discriminators[D_rank[0]].eval()
+                    generators[G_rank[0]].train()
+
+                    '''训练生成器'''
+                    weight = weight_matrix[:, :-1].clone().detach()  # [N, N]
+                    loss_G, loss_mse_G = discriminate_fake(args, [X[G_rank[0]]], [Y[D_rank[0]]], [LABELS[D_rank[0]]],
+                                                           [generators[G_rank[0]]], [discriminators[D_rank[0]]],
+                                                           [window_sizes[D_rank[0]]], target_num,
+                                                           criterion, weight[D_rank[0], G_rank[0]],
+                                                           device,
+                                                           mode="train_G")
+
+                    optimizers_G[G_rank[0]].zero_grad()
+                    # loss_G.sum(dim=0).backward()
+                    scaler.scale(loss_G.sum(dim=0)).backward()
+                    # optimizers_G[G_rank[0]].step()
+                    scaler.step(optimizers_G[G_rank[0]])
+                    scaler.update()
+
+                validate_G_loss, validate_G_acc = validate(generators[G_rank[0]], val_xes[G_rank[0]], val_y, val_labels[G_rank[0]])
+
+                    # g0 = G_rank[0]  # 最优 Generator 索引
+                    # # —— 1. 训练所有 D_i ——
+                    # for d0 in D_rank:
+                    #     generators[g0].eval()
+                    #     discriminators[d0].train()
+                    #
+                    #     # 只用 G_best 的那路输入 X[g0]，对应 D_i 的标签 LABELS[d0]
+                    #     loss_D, _ = discriminate_fake(
+                    #         args,
+                    #         [X[g0]], [Y[d0]], [LABELS[d0]],
+                    #         [generators[g0]], [discriminators[d0]],
+                    #         [window_sizes[d0]], target_num,
+                    #         criterion,
+                    #         weight_matrix[d0, g0],  # 原来给 (D_i, G_best) 的权重
+                    #         device,
+                    #         mode="train_D"
+                    #     )
+                    #     optimizers_D[d0].zero_grad()
+                    #     scaler.scale(loss_D.sum()).backward()
+                    #     scaler.step(optimizers_D[d0])
+                    #     scaler.update()
+                    #
+                    # # —— 2. 找到对 G_best 损失最小的 D ——
+                    # gen_losses = []
+                    # for d0 in D_rank:
+                    #     # 注意此处 mode="train_G"，返回 loss_G, loss_mse_G
+                    #     loss_G, _ = discriminate_fake(
+                    #         args,
+                    #         [X[g0]], [Y[d0]], [LABELS[d0]],
+                    #         [generators[g0]], [discriminators[d0]],
+                    #         [window_sizes[d0]], target_num,
+                    #         criterion,
+                    #         weight_matrix[d0, g0],
+                    #         device,
+                    #         mode="train_G"
+                    #     )
+                    #     gen_losses.append(loss_G.item())
+                    #
+                    # # 最小损失对应的 D 索引
+                    # d_min = D_rank[int(np.argmin(gen_losses))]
+                    #
+                    # # —— 3. 用 D_min 训练生成器 ——
+                    # discriminators[d_min].eval()
+                    # generators[g0].train()
+                    #
+                    # loss_G, loss_mse_G = discriminate_fake(
+                    #     args,
+                    #     [X[g0]], [Y[d_min]], [LABELS[d_min]],
+                    #     [generators[g0]], [discriminators[d_min]],
+                    #     [window_sizes[d_min]], target_num,
+                    #     criterion,
+                    #     weight_matrix[d_min, g0],
+                    #     device,
+                    #     mode="train_G"
+                    # )
+                    # optimizers_G[g0].zero_grad()
+                    # scaler.scale(loss_G.sum()).backward()
+                    # scaler.step(optimizers_G[g0])
+                    # scaler.update()
+                    #
+                    # # 最后再做一次验证
+                    # validate_G_loss, validate_G_acc = validate(
+                    #     generators[g0],
+                    #     val_xes[g0], val_y, val_labels[g0]
+                    # )
 
                 if validate_G_loss >= cross_best_Gloss:
                     generators[G_rank[0]].load_state_dict(best_model_state[G_rank[0]])
@@ -402,10 +402,14 @@ def train_multi_gan(args, generators, discriminators, dataloaders,
                     best_model_state[G_rank[0]] = copy.deepcopy(generators[G_rank[0]].state_dict())
                     best_epoch[G_rank[0]] = epoch + 1
 
+                # print(
+                #     f"== Cross finetune Epoch [{e + 1}/{num_epochs}]: G{G_rank[0] + 1} with D{d_min + 1}: Validation MSE {validate_G_loss:.8f}, Validation Acc {validate_G_acc*100:.2f}%")
+                # logging.info(
+                #     f"== Cross finetune Epoch [{e + 1}/{num_epochs}]: G{G_rank[0] + 1} wi
                 print(
-                    f"== Cross finetune Epoch [{e + 1}/{num_epochs}]: G{G_rank[0] + 1} with D{d_min + 1}: Validation MSE {validate_G_loss:.8f}, Validation Acc {validate_G_acc*100:.2f}%")
+                    f"== Cross finetune Epoch [{e + 1}/{num_epochs}]: G{G_rank[0] + 1} with D{D_rank[0] + 1}: Validation MSE {validate_G_loss:.8f}, Validation Acc {validate_G_acc*100:.2f}%")
                 logging.info(
-                    f"== Cross finetune Epoch [{e + 1}/{num_epochs}]: G{G_rank[0] + 1} with D{d_min + 1}: Validation MSE {validate_G_loss:.8f}, Validation Acc {validate_G_acc*100:.2f}%")  # NEW
+                    f"== Cross finetune Epoch [{e + 1}/{num_epochs}]: G{G_rank[0] + 1} with D{D_rank[0] + 1}: Validation MSE {validate_G_loss:.8f}, Validation Acc {validate_G_acc*100:.2f}%")  # NEW
 
         # 每个epoch结束时，打印训练过程中的损失
         print(f"Epoch [{epoch + 1}/{num_epochs}]")
